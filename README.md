@@ -28,7 +28,7 @@ concurrence pour la première fois.
 
 ### Installation
 ```bash
-git clone https://github.com/<ton-username>/loom.git
+git clone https://github.com/theo-henon/loom.git
 cd loom
 npm install
 ```

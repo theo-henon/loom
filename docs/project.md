@@ -198,7 +198,7 @@ None required. Loom is fully static with no secrets.
 | Environment | URL |
 |---|---|
 | Local | `http://localhost:5173` |
-| Production | `https://<username>.github.io/loom/` |
+| Production | `https://theo-henon.github.io/loom/` |
 
 ---
 
