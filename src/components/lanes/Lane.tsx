@@ -4,7 +4,7 @@ import { useProgram } from '../../hooks/useProgram';
 import type { Lane as LaneData } from '../../types/lane';
 import type { ThreadStatus } from '../../types/execution';
 import { BlockRenderer } from '../blocks/BlockRenderer';
-import { Button } from '../ui/Button';
+import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
 import { parseDroppedBlockType } from '../palette/drag';
 
@@ -64,17 +64,14 @@ export function Lane({ lane, isSelected }: LaneProps) {
             aria-label="Nom de la lane"
             disabled={isRunning}
           />
-          <Button
-            variant="ghost"
-            className="shrink-0 text-xs"
+          <RemoveButton
+            label="Supprimer la lane"
+            disabled={isRunning}
             onClick={(event) => {
               event.stopPropagation();
               removeLane(lane.id);
             }}
-            disabled={isRunning}
-          >
-            Suppr.
-          </Button>
+          />
         </div>
         <span className="text-xs text-gray-500">
           {STATUS_LABELS[threadStatus]}

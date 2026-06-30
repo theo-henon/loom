@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { Block } from '../../types/blocks';
 import type { ThreadStatus } from '../../types/execution';
-import { Button } from '../ui/Button';
+import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
 import { ConditionBlock } from './ConditionBlock';
 import { LoopBlock } from './LoopBlock';
@@ -48,9 +48,7 @@ export function BlockRenderer({
         </div>
       )}
       <div className="mb-2 flex justify-end">
-        <Button variant="ghost" className="text-xs" onClick={onRemove}>
-          Supprimer
-        </Button>
+        <RemoveButton label="Supprimer le bloc" onClick={onRemove} />
       </div>
       {block.type === 'variable' && (
         <VariableBlock block={block} onChange={onChange} />
