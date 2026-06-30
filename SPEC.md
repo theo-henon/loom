@@ -1,20 +1,20 @@
 # Spec — Layout éditeur (redimensionner / déplacer / sauvegarder)
 
 > **Statut :** Implémentée  
-> **Feature :** post-MVP
+> **Feature :** post-MVP (IDEAS.md)
 
 ## Objective
 
-Personnaliser l'espace de travail : redimensionner les panneaux et lanes, réordonner lanes et blocs, sauvegarder ou restaurer le layout par défaut (localStorage).
+Permettre à l'utilisateur de ralentir ou accélérer l'exécution automatique (Play) pour mieux observer les scénarios rapides ou avancer plus vite sur les longs.
 
 ## Success Criteria
 
-- [x] Poignées de redimensionnement : palette | éditeur | visualisation
-- [x] Lanes redimensionnables (largeur) et réordonnables (drag ⠿)
-- [x] Blocs déplaçables entre lanes et réordonnables (drag ⠿)
-- [x] Boutons « Sauvegarder layout » et « Layout par défaut »
-- [x] Persistance localStorage (`loom-editor-layout`)
+- [x] Sélecteur vitesse dans le header à côté des contrôles d'exécution
+- [x] 3 vitesses : Lente (1200 ms), Normale (600 ms), Rapide (200 ms)
+- [x] Play respecte la vitesse ; Step/Reset inchangés
+- [x] Persistance session (state React, pas de localStorage)
+- [x] Tests passent
 
 ## Références
 
-- [IDEAS.md](./IDEAS.md)
+- [IDEAS.md — Speed control](./IDEAS.md)
