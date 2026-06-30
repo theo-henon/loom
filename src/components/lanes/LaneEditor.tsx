@@ -6,8 +6,8 @@ export function LaneEditor() {
   const { state, addLane } = useProgram();
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="mb-3 flex items-center justify-between">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="mb-3 flex shrink-0 items-center justify-between">
         <p className="text-sm text-gray-500" aria-label="Nombre de lanes">
           {state.lanes.length} lane{state.lanes.length > 1 ? 's' : ''}
         </p>
@@ -23,7 +23,7 @@ export function LaneEditor() {
           </p>
         </div>
       ) : (
-        <div className="flex flex-1 gap-4 overflow-x-auto pb-2">
+        <div className="flex min-h-0 min-w-0 flex-1 gap-4 overflow-x-auto pb-2">
           {state.lanes.map((lane) => (
             <Lane
               key={lane.id}
