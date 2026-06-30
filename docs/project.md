@@ -120,7 +120,6 @@ Components never import from other components' internals — only from shared `u
 loom/
 ├── README.md
 ├── VISION.md
-├── STARTUP.md                  (temporary — removed after MVP)
 ├── IDEAS.md
 ├── AGENTS.md
 ├── CLAUDE.md

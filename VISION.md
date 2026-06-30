@@ -73,6 +73,6 @@ elles sont des invitations à penser stratégiquement quand le besoin émergera.
 
 Le détail opérationnel ne vit PAS ici. Voir :
 
-- **STARTUP.md** pour le plan de démarrage jusqu'au MVP (document temporaire)
 - **docs/project.md** pour la stack et l'architecture technique
 - **IDEAS.md** pour les idées futures non planifiées
+- **SPEC.md** pour la feature en cours de spécification
