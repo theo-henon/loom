@@ -5,6 +5,7 @@ import { setBlockDragData } from '../palette/drag';
 import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
 import { type NestedBlockListProps } from './BlockList';
+import { BlockTypeLabel } from './BlockTypeLabel';
 import { IfBlock } from './IfBlock';
 import { LoopBlock } from './LoopBlock';
 import { MutexBlock } from './MutexBlock';
@@ -48,7 +49,7 @@ export function BlockRenderer({
 
   return (
     <div
-      className={`relative rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow duration-300 ${
+      className={`relative rounded-lg border border-gray-200 bg-white p-2 shadow-sm transition-shadow duration-300 ${
         isActive && threadColor ? 'shadow-md' : ''
       } ${borderAccent}`}
       style={
@@ -68,10 +69,10 @@ export function BlockRenderer({
           />
         </div>
       )}
-      <div className="mb-2 flex items-center justify-between gap-2">
+      <div className="mb-1 flex items-center gap-1">
         <button
           type="button"
-          className="cursor-grab touch-none rounded px-1 text-xs text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-50"
+          className="cursor-grab touch-none rounded px-0.5 text-xs leading-none text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-50"
           draggable={draggable}
           disabled={!draggable}
           aria-label="Déplacer le bloc"
@@ -84,6 +85,15 @@ export function BlockRenderer({
         >
           ⠿
         </button>
+        <BlockTypeLabel type={block.type} compact className="min-w-0 flex-1" />
+        {block.type === 'mutex' &&
+          (mutexOwnerLabel ? (
+            <span className="shrink-0 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-medium text-rose-800">
+              {mutexOwnerLabel}
+            </span>
+          ) : (
+            <span className="shrink-0 text-[10px] text-gray-400">Libre</span>
+          ))}
         <RemoveButton label="Supprimer le bloc" onClick={onRemove} />
       </div>
       {block.type === 'variable' && (
@@ -111,11 +121,7 @@ export function BlockRenderer({
         />
       ) : null}
       {block.type === 'mutex' && (
-        <MutexBlock
-          block={block}
-          onChange={onChange}
-          ownerLabel={mutexOwnerLabel}
-        />
+        <MutexBlock block={block} onChange={onChange} />
       )}
     </div>
   );

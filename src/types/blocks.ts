@@ -66,6 +66,22 @@ export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   mutex: 'Mutex',
 };
 
+export const BLOCK_HELP_TEXT: Record<BlockType, string> = {
+  variable:
+    'Déclare une variable numérique, partagée entre tous les threads de la lane.',
+  operation:
+    'Modifie une variable existante : addition, soustraction, multiplication ou division.',
+  condition:
+    'Teste une variable (ex. x == 0). Glissez ce bloc dans un Si...Alors ou une Boucle.',
+  if: 'Insérez un bloc Condition, puis les blocs à exécuter dans « Alors ».',
+  loop: 'Tant que la condition est vraie, les blocs du corps sont répétés.',
+  mutex:
+    'Verrouille une section : un seul thread à la fois peut la traverser.',
+};
+
+export const IF_ELSE_BRANCH_HELP =
+  'Exécuté quand la condition est fausse.';
+
 export function getContainerPredicate(
   block: BlockContainer,
 ): ConditionPredicateBlockData | null {

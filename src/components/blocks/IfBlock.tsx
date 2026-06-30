@@ -1,7 +1,7 @@
-import type { IfBlockData } from '../../types/blocks';
-import { BlockTypeLabel } from './BlockTypeLabel';
+import { IF_ELSE_BRANCH_HELP, type IfBlockData } from '../../types/blocks';
 import { BlockList, type NestedBlockListProps } from './BlockList';
 import { Button } from '../ui/Button';
+import { Tooltip } from '../ui/Tooltip';
 
 type IfBlockProps = {
   block: IfBlockData;
@@ -25,14 +25,9 @@ export function IfBlock({
   };
 
   return (
-    <div className="space-y-2 text-sm">
-      <BlockTypeLabel type="if" />
-      <p className="text-xs text-gray-400">
-        Insérez un bloc Condition, puis les blocs à exécuter dans « Alors ».
-      </p>
-
-      <div className="mt-3">
-        <p className="mb-2 text-xs font-medium text-gray-500">Condition</p>
+    <div className="space-y-1.5 text-xs">
+      <div>
+        <p className="mb-1 font-medium text-gray-500">Condition</p>
         <BlockList
           laneId={laneId}
           blocks={block.condition}
@@ -45,8 +40,8 @@ export function IfBlock({
         />
       </div>
 
-      <div className="mt-3">
-        <p className="mb-2 text-xs font-medium text-gray-500">Alors</p>
+      <div>
+        <p className="mb-1 font-medium text-gray-500">Alors</p>
         <BlockList
           laneId={laneId}
           blocks={block.children}
@@ -57,21 +52,25 @@ export function IfBlock({
       </div>
 
       {block.hasElse ? (
-        <div className="mt-3">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="text-xs font-medium text-gray-500">Sinon</p>
+        <div>
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <Tooltip content={IF_ELSE_BRANCH_HELP}>
+              <span
+                tabIndex={0}
+                className="cursor-help rounded font-medium text-gray-500 outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+              >
+                Sinon
+              </span>
+            </Tooltip>
             <Button
               type="button"
               variant="secondary"
-              className="text-xs"
+              className="px-2 py-0.5 text-xs"
               onClick={disableElse}
             >
               Retirer le sinon
             </Button>
           </div>
-          <p className="mb-2 text-xs text-gray-400">
-            Exécuté quand la condition est fausse.
-          </p>
           <BlockList
             laneId={laneId}
             blocks={block.elseChildren}
@@ -84,7 +83,7 @@ export function IfBlock({
         <Button
           type="button"
           variant="secondary"
-          className="mt-2 w-full text-xs"
+          className="w-full px-2 py-0.5 text-xs"
           onClick={enableElse}
         >
           Ajouter un sinon

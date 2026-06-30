@@ -82,7 +82,7 @@ export function BlockList({
   if (blocks.length === 0) {
     return (
       <div
-        className="rounded-lg border border-dashed border-gray-300 bg-gray-50/50 p-3"
+        className="rounded-lg border border-dashed border-gray-300 bg-gray-50/50 p-2"
         onDragOver={(event) => event.preventDefault()}
         onDrop={handleAppendDrop}
       >
@@ -92,7 +92,7 @@ export function BlockList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {blocks.map((block, blockIndex) => (
         <div
           key={block.id}
@@ -123,7 +123,7 @@ export function BlockList({
       ))}
       {showAppendZone ? (
         <div
-          className="rounded-lg border border-dashed border-transparent p-3 transition-colors hover:border-gray-300 hover:bg-gray-50/50"
+          className="rounded-lg border border-dashed border-transparent p-2 transition-colors hover:border-gray-300 hover:bg-gray-50/50"
           onDragOver={(event) => event.preventDefault()}
           onDrop={handleAppendDrop}
         >

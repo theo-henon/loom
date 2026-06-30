@@ -1,5 +1,5 @@
 import type { VariableBlockData } from '../../types/blocks';
-import { BlockTypeLabel } from './BlockTypeLabel';
+import { BlockFieldRow, blockInputClassName } from './BlockField';
 
 type VariableBlockProps = {
   block: VariableBlockData;
@@ -8,27 +8,24 @@ type VariableBlockProps = {
 
 export function VariableBlock({ block, onChange }: VariableBlockProps) {
   return (
-    <div className="space-y-2 text-sm">
-      <BlockTypeLabel type="variable" />
-      <label className="flex flex-col gap-1">
-        <span className="text-xs text-gray-500">Nom</span>
+    <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+      <BlockFieldRow label="Nom">
         <input
-          className="rounded border border-gray-300 px-2 py-1"
+          className={blockInputClassName}
           value={block.name}
           onChange={(event) => onChange({ ...block, name: event.target.value })}
         />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-xs text-gray-500">Valeur initiale</span>
+      </BlockFieldRow>
+      <BlockFieldRow label="Valeur">
         <input
           type="number"
-          className="rounded border border-gray-300 px-2 py-1"
+          className={blockInputClassName}
           value={block.value}
           onChange={(event) =>
             onChange({ ...block, value: Number(event.target.value) })
           }
         />
-      </label>
+      </BlockFieldRow>
     </div>
   );
 }

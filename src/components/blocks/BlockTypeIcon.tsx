@@ -4,6 +4,7 @@ import type { BlockType } from '../../types/blocks';
 type BlockTypeIconProps = {
   type: BlockType;
   className?: string;
+  compact?: boolean;
 };
 
 const ICON_STYLES: Record<BlockType, string> = {
@@ -90,12 +91,17 @@ const ICONS: Record<BlockType, () => ReactElement> = {
   mutex: MutexIcon,
 };
 
-export function BlockTypeIcon({ type, className = '' }: BlockTypeIconProps) {
+export function BlockTypeIcon({
+  type,
+  className = '',
+  compact = false,
+}: BlockTypeIconProps) {
   const Icon = ICONS[type];
+  const sizeClass = compact ? 'h-5 w-5' : 'h-6 w-6';
 
   return (
     <span
-      className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded ${ICON_STYLES[type]} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded ${sizeClass} ${ICON_STYLES[type]} ${className}`}
       aria-hidden
     >
       <Icon />
