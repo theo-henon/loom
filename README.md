@@ -10,13 +10,12 @@ concurrence pour la première fois.
 
 ## État courant
 
-**Phase actuelle :** Phase 1.5 — Scénarios pré-construits (**MVP atteint**)
-**MVP visé :** fin de Phase 1.5
+**Statut :** MVP livré (Phases 0 → 1.5)
+**Prochaines évolutions :** via `/spec` sur des features individuelles (voir [IDEAS.md](./IDEAS.md))
 
-> Plan de démarrage complet : voir [STARTUP.md](./STARTUP.md)
 > Vision stratégique : voir [VISION.md](./VISION.md)
 > Stack et architecture : voir [docs/project.md](./docs/project.md)
-> Idées parkées : voir [IDEAS.md](./IDEAS.md)
+> Spec en cours : voir [SPEC.md](./SPEC.md)
 
 ---
 
@@ -63,6 +62,8 @@ npm run test           # Vitest — mode watch
 npm run test:run       # Vitest — exécution unique (CI)
 ```
 
+Avant chaque push, lancer : `npm run format:check && npm run lint && npm run test:run`
+
 ---
 
 ## Déploiement
@@ -98,8 +99,8 @@ loom/
 ├── public/              favicon et assets statiques
 ├── src/
 │   ├── components/      blocks, lanes, palette, visualization, ui
-│   ├── engine/          moteur d'exécution (Phase 1.2+)
-│   ├── scenarios/       scénarios pré-construits (Phase 1.5+)
+│   ├── engine/          moteur d'exécution tick-based
+│   ├── scenarios/       scénarios pré-construits
 │   ├── hooks/
 │   └── types/
 └── tests/               Vitest + React Testing Library
@@ -112,3 +113,5 @@ loom/
 Ce projet utilise **agent-skills** (https://github.com/addyosmani/agent-skills)
 installé globalement dans les outils de développement. Voir [AGENTS.md](./AGENTS.md)
 pour les conventions spécifiques au projet et les pointeurs pour les agents.
+
+Nouvelles features : `/spec` → `/plan` → `/build` → `/ship` (plus de plan bootstrap).

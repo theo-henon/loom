@@ -1,26 +1,14 @@
-# Implementation Plan: Phase 1.5 — Scénarios pré-construits
+# Implementation Plan
 
-> Référence : [SPEC.md](../SPEC.md)
+> Référence : [SPEC.md](../SPEC.md)  
+> **Statut :** En attente de validation de la spec
 
 ## Tâches
 
-- [x] Définitions des 3 scénarios (`src/scenarios/`)
-- [x] Action `LOAD_SCENARIO` dans le reducer
-- [x] Écran d'accueil `ScenarioWelcome`
-- [x] Modal « Charger un scénario » depuis le header
-- [x] Badge scénario actif dans le header
-- [x] Tests scénarios + reducer + App
+_(À remplir après validation de SPEC.md — phase `/plan`)_
 
 ## Vérification locale
 
 ```bash
-npm run lint && npm run test:run && npm run build
+npm run format:check && npm run lint && npm run test:run && npm run build
 ```
-
-## Essai manuel
-
-Charger « Deadlock », lancer Play — les deux threads se bloquent, ronds ambre + timeline visible.
-
-## MVP
-
-Phase 1.5 complète le MVP bootstrap. **Supprimer STARTUP.md** après merge si confirmé.

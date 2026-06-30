@@ -16,7 +16,7 @@ show which thread is at which instruction in real time, and a timeline panel
 shows the full execution history. Pre-built scenarios cover key concurrency
 concepts (parallel execution, race condition, deadlock).
 
-**Current phase:** Phase 0 — Fondations techniques
+**Current phase:** Post-MVP — features via `/spec`
 **Primary language:** French (UI and user-facing content)
 **Users:** Junior developers and CS students discovering concurrency for the first time
 
@@ -41,12 +41,11 @@ Read these for project context (in this order):
    any `/spec` or architecture decision. Every new feature should align with
    the vision; if alignment isn't clear, stop and clarify before specifying.
    Adapts to project maturity — some sections may be placeholders.
-2. **STARTUP.md** — **Temporary bootstrap document.** Contains the plan
-   from Phase 0 to MVP. Will be deleted once MVP is reached.
-3. **docs/project.md** — Tech Stack, architecture, deployment workflow,
+2. **docs/project.md** — Tech Stack, architecture, deployment workflow,
    constraints. **Source of truth for technical matters.**
-4. **README.md** — Current state, local setup, deployment workflow summary.
-5. **IDEAS.md** — Parking lot of future ideas (consult only when relevant).
+3. **README.md** — Current state, local setup, deployment workflow summary.
+4. **IDEAS.md** — Parking lot of future ideas (consult only when relevant).
+5. **SPEC.md** — Current feature specification (post-MVP).
 
 ---
 
@@ -56,7 +55,7 @@ Read these for project context (in this order):
 loom/
 ├── README.md                   Current state, setup
 ├── VISION.md                   Strategic vision (adaptive depth)
-├── STARTUP.md                  Bootstrap plan (TEMPORARY — delete after MVP)
+├── SPEC.md                     Current feature spec (post-MVP)
 ├── IDEAS.md                    Parking lot for future ideas (English)
 ├── AGENTS.md                   This file
 ├── CLAUDE.md                   One-liner: @AGENTS.md (Claude Code compatibility)
@@ -155,15 +154,19 @@ Do NOT use real Web Workers or async parallelism in the MVP. The simulation
 must be pausable, steppable, and observable. This is a deliberate pedagogical
 choice — see `docs/adr/` for the rationale once documented.
 
-### STARTUP.md lifecycle (important)
+### Post-MVP workflow
 
-- STARTUP.md is **temporary** — it guides the bootstrap from Phase 0 to MVP
-- Once MVP is reached, **STARTUP.md should be deleted**
-- Do NOT extend STARTUP.md with post-MVP phases
-- Post-MVP work goes through `/spec` directly on individual features
-- Ideas for future work go into IDEAS.md
+MVP reached (2026). New work is **feature-scoped** via `/spec`:
 
-### Documentation conventions
+1. Pick or refine a feature (see IDEAS.md or user request)
+2. `/spec` → `/plan` → `/build` → `/ship`
+3. Read VISION.md + docs/project.md + SPEC.md for context
+
+Feature-level docs live in `docs/features/<feature-name>/` when complexity warrants it.
+
+### Documentation conventions (legacy bootstrap)
+
+Bootstrap phases 0–1.5 are complete. Historical plan was in STARTUP.md (deleted).
 
 - **Architecture Decision Records** live in `docs/adr/` — use the
   `documentation-and-adrs` skill when making a significant technical decision
@@ -279,17 +282,10 @@ Always suggest `/spec` when the request implies:
 - Requirements that are ambiguous or not self-contained
 - A structural refactor that changes architecture
 
-### Bootstrap vs post-MVP
+### Post-MVP (current)
 
-**While STARTUP.md exists (bootstrap phase):** new work usually means a new
-phase from STARTUP.md. `/spec` takes the phase description as input; the agent
-reads STARTUP.md + VISION.md + docs/project.md for context.
-
-**Reaching MVP:** when the last phase of STARTUP.md is shipped, **explicitly
-remind the user to delete STARTUP.md before continuing**.
-
-**After MVP (STARTUP.md deleted):** new work is feature-scoped. `/spec` takes
-a feature description directly, without phase context.
+New work is feature-scoped. `/spec` takes a feature description directly.
+Read VISION.md + docs/project.md + IDEAS.md (if relevant) for context.
 
 ---
 
@@ -313,7 +309,7 @@ React-specific quality guidance from a different source, not agent-skills entry 
 
 - Never modify `VISION.md` strategic structure (sections 1-5) without explicit
   user confirmation — it reflects validated strategic work.
-- Never extend `STARTUP.md` with post-MVP phases — those go into IDEAS.md
+- Never extend deleted bootstrap docs with post-MVP phases — those go into IDEAS.md
   or directly into `/spec` work.
 - Never duplicate Tech Stack or Project Structure content into other files —
   always reference `docs/project.md`.
@@ -322,8 +318,6 @@ React-specific quality guidance from a different source, not agent-skills entry 
   without actually producing the corresponding documentation.
 - Never assume a deployment workflow different from the one documented
   in `docs/project.md` — it is immutable unless an ADR supersedes it.
-- Never delete STARTUP.md without explicit user confirmation that the MVP
-  has been reached.
 - Never make an architectural decision without documenting it in `docs/adr/`
   via the `documentation-and-adrs` skill.
 - Never invoke the `accessibility` skill unless VISION.md explicitly states
