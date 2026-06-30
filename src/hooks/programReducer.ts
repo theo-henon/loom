@@ -14,6 +14,7 @@ export type ProgramState = {
   lanes: Lane[];
   selectedLaneId: string | null;
   activeScenarioId: ScenarioId | null;
+  programTitle: string | null;
 };
 
 export type ProgramAction =
@@ -35,6 +36,7 @@ export type ProgramAction =
       type: 'LOAD_SCENARIO';
       lanes: Lane[];
       scenarioId: ScenarioId | null;
+      title?: string | null;
     }
   | { type: 'REORDER_LANES'; fromIndex: number; toIndex: number }
   | {
@@ -93,6 +95,7 @@ export const initialProgramState: ProgramState = {
   lanes: [createLane(1), createLane(2)],
   selectedLaneId: null,
   activeScenarioId: null,
+  programTitle: null,
 };
 
 export function programReducer(
@@ -195,6 +198,7 @@ export function programReducer(
         lanes: action.lanes,
         selectedLaneId: action.lanes[0]?.id ?? null,
         activeScenarioId: action.scenarioId,
+        programTitle: action.scenarioId ? null : (action.title ?? null),
       };
     case 'REORDER_LANES':
       return {
