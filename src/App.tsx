@@ -46,7 +46,11 @@ function AppContent() {
       </header>
       <main className="flex flex-1 overflow-hidden">
         <BlockPalettePanel className="w-60 shrink-0" />
-        <Panel title="Éditeur de lanes" className="flex-1">
+        <Panel
+          title="Éditeur de lanes"
+          className="min-w-0 flex-1"
+          contentClassName="overflow-hidden"
+        >
           <LaneEditor />
         </Panel>
         <VisualizationPanel className="w-80 shrink-0" />

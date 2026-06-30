@@ -45,7 +45,7 @@ export function Lane({ lane, isSelected }: LaneProps) {
 
   return (
     <section
-      className={`flex w-64 shrink-0 flex-col rounded-lg border bg-gray-50 ${
+      className={`flex h-full min-h-0 w-64 shrink-0 flex-col rounded-lg border bg-gray-50 ${
         isSelected
           ? 'border-indigo-500 ring-2 ring-indigo-200'
           : 'border-gray-200'
