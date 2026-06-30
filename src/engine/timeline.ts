@@ -124,13 +124,21 @@ function findBlockById(
     if (block.id === blockId) {
       return block;
     }
-    if (block.type === 'condition' || block.type === 'loop') {
-      const nested = findBlockById(block.children, blockId);
+    if (block.type === 'if') {
+      const nested =
+        findBlockById(block.condition, blockId) ??
+        findBlockById(block.children, blockId) ??
+        findBlockById(block.elseChildren, blockId);
       if (nested) {
         return nested;
       }
-      if (block.type === 'condition') {
-        return findBlockById(block.elseChildren, blockId);
+    }
+    if (block.type === 'loop') {
+      const nested =
+        findBlockById(block.condition, blockId) ??
+        findBlockById(block.children, blockId);
+      if (nested) {
+        return nested;
       }
     }
   }

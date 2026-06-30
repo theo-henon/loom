@@ -9,7 +9,12 @@ import { getLaneWidth } from '../../types/editorLayout';
 import type { Lane as LaneData } from '../../types/lane';
 import type { ThreadStatus } from '../../types/execution';
 import { BlockList } from '../blocks/BlockList';
-import { parseLaneDragData, setLaneDragData } from '../palette/drag';
+import {
+  parseBlockDragData,
+  parseDroppedBlockType,
+  parseLaneDragData,
+  setLaneDragData,
+} from '../palette/drag';
 import { ResizeHandle } from '../layout/ResizeHandle';
 import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
@@ -34,6 +39,8 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
     renameLane,
     removeLane,
     reorderLanes,
+    addBlock,
+    moveBlock,
   } = useProgram();
   const { layout, adjustLaneWidth } = useEditorLayout();
   const { state: engineState, isRunning } = useExecution();
@@ -89,6 +96,27 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
     getMutexOwnerLabel,
   };
 
+  const handleLaneBlocksDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+
+    const blockType = parseDroppedBlockType(event.dataTransfer);
+    if (blockType) {
+      addBlock(lane.id, blockType, null, lane.blocks.length);
+      return;
+    }
+
+    const blockDrag = parseBlockDragData(event.dataTransfer);
+    if (blockDrag) {
+      moveBlock(
+        blockDrag.blockId,
+        blockDrag.laneId,
+        lane.id,
+        null,
+        lane.blocks.length,
+      );
+    }
+  };
+
   return (
     <section
       className={`relative flex h-full min-h-0 shrink-0 flex-col rounded-lg border bg-gray-50 ${
@@ -141,7 +169,11 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
         </span>
       </header>
 
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3">
+      <div
+        className="flex flex-1 flex-col gap-3 overflow-y-auto p-3"
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={handleLaneBlocksDrop}
+      >
         <BlockList
           laneId={lane.id}
           blocks={lane.blocks}

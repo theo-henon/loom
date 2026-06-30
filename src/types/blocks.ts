@@ -1,5 +1,5 @@
 export type BlockType =
-  'variable' | 'operation' | 'condition' | 'loop' | 'mutex';
+  'variable' | 'operation' | 'condition' | 'if' | 'loop' | 'mutex';
 
 export type ArithmeticOperator = '+' | '-' | '*' | '/';
 export type Comparator = '==' | '!=' | '<' | '>' | '<=' | '>=';
@@ -21,11 +21,16 @@ export type OperationBlockData = BlockBase & {
   operand: number;
 };
 
-export type ConditionBlockData = BlockBase & {
+export type ConditionPredicateBlockData = BlockBase & {
   type: 'condition';
   variable: string;
   comparator: Comparator;
   value: number;
+};
+
+export type IfBlockData = BlockBase & {
+  type: 'if';
+  condition: Block[];
   children: Block[];
   hasElse: boolean;
   elseChildren: Block[];
@@ -33,7 +38,7 @@ export type ConditionBlockData = BlockBase & {
 
 export type LoopBlockData = BlockBase & {
   type: 'loop';
-  iterations: number;
+  condition: Block[];
   children: Block[];
 };
 
@@ -45,17 +50,28 @@ export type MutexBlockData = BlockBase & {
 export type Block =
   | VariableBlockData
   | OperationBlockData
-  | ConditionBlockData
+  | ConditionPredicateBlockData
+  | IfBlockData
   | LoopBlockData
   | MutexBlockData;
+
+export type BlockContainer = IfBlockData | LoopBlockData;
 
 export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   variable: 'Variable',
   operation: 'Opération',
-  condition: 'Si...Alors',
+  condition: 'Condition',
+  if: 'Si...Alors',
   loop: 'Boucle',
   mutex: 'Mutex',
 };
+
+export function getContainerPredicate(
+  block: BlockContainer,
+): ConditionPredicateBlockData | null {
+  const predicate = block.condition[0];
+  return predicate?.type === 'condition' ? predicate : null;
+}
 
 export function createBlock(type: BlockType): Block {
   const id = crypto.randomUUID();
@@ -78,12 +94,18 @@ export function createBlock(type: BlockType): Block {
         variable: 'x',
         comparator: '==',
         value: 0,
+      };
+    case 'if':
+      return {
+        id,
+        type,
+        condition: [],
         children: [],
         hasElse: false,
         elseChildren: [],
       };
     case 'loop':
-      return { id, type, iterations: 3, children: [] };
+      return { id, type, condition: [], children: [] };
     case 'mutex':
       return { id, type, name: 'verrou' };
   }

@@ -1,10 +1,11 @@
 import { createBlock, type Block, type BlockType } from '../types/blocks';
 import {
-  getConditionBranchLength,
+  findBlockInTree,
+  getContainerBranchLength,
   insertBlockInTree,
   removeBlockFromTree,
   updateBlockInTree,
-  type ConditionBranch,
+  type ContainerBranch,
 } from '../types/blockTree';
 import { createLane, type Lane } from '../types/lane';
 import type { ScenarioId } from '../scenarios/types';
@@ -25,7 +26,7 @@ export type ProgramAction =
       laneId: string;
       blockType: BlockType;
       parentBlockId?: string | null;
-      parentBranch?: ConditionBranch;
+      parentBranch?: ContainerBranch;
       index?: number;
     }
   | { type: 'REMOVE_BLOCK'; laneId: string; blockId: string }
@@ -42,7 +43,7 @@ export type ProgramAction =
       fromLaneId: string;
       toLaneId: string;
       toParentBlockId: string | null;
-      toParentBranch?: ConditionBranch;
+      toParentBranch?: ContainerBranch;
       toIndex: number;
     };
 
@@ -60,49 +61,32 @@ function reorderItems<T>(items: T[], fromIndex: number, toIndex: number): T[] {
 function getChildCountForParent(
   blocks: Block[],
   parentBlockId: string | null,
-  branch: ConditionBranch = 'then',
+  branch: ContainerBranch = 'then',
 ): number {
   if (parentBlockId === null) {
     return blocks.length;
   }
 
-  for (const block of blocks) {
-    if (block.id === parentBlockId && block.type === 'condition') {
-      return getConditionBranchLength(block, branch);
-    }
-    if (block.id === parentBlockId && block.type === 'loop') {
-      return block.children.length;
-    }
-    if (block.type === 'condition') {
-      const nested = getChildCountForParent(
-        block.children,
-        parentBlockId,
-        branch,
-      );
-      if (nested !== -1) {
-        return nested;
-      }
-      const nestedElse = getChildCountForParent(
-        block.elseChildren,
-        parentBlockId,
-        branch,
-      );
-      if (nestedElse !== -1) {
-        return nestedElse;
-      }
-    } else if (block.type === 'loop') {
-      const nested = getChildCountForParent(
-        block.children,
-        parentBlockId,
-        branch,
-      );
-      if (nested !== -1) {
-        return nested;
-      }
-    }
+  const parent = findBlockInTree(blocks, parentBlockId);
+  if (parent && (parent.type === 'if' || parent.type === 'loop')) {
+    return getContainerBranchLength(parent, branch);
   }
 
   return -1;
+}
+
+function canAddBlock(
+  blockType: BlockType,
+  parentBlockId: string | null,
+  branch: ContainerBranch,
+): boolean {
+  if (blockType === 'condition') {
+    return parentBlockId !== null && branch === 'condition';
+  }
+  if (branch === 'condition') {
+    return false;
+  }
+  return true;
 }
 
 export const initialProgramState: ProgramState = {
@@ -151,6 +135,9 @@ export function programReducer(
 
           const parentBlockId = action.parentBlockId ?? null;
           const branch = action.parentBranch ?? 'then';
+          if (!canAddBlock(action.blockType, parentBlockId, branch)) {
+            return lane;
+          }
           const childCount = getChildCountForParent(
             lane.blocks,
             parentBlockId,

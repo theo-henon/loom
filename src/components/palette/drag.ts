@@ -8,6 +8,7 @@ const BLOCK_TYPES: BlockType[] = [
   'variable',
   'operation',
   'condition',
+  'if',
   'loop',
   'mutex',
 ];

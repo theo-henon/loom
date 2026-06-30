@@ -6,8 +6,9 @@ import {
 
 describe('programReducer', () => {
   beforeEach(() => {
+    let id = 0;
     vi.stubGlobal('crypto', {
-      randomUUID: vi.fn(() => 'test-uuid'),
+      randomUUID: vi.fn(() => `test-uuid-${id++}`),
     });
   });
 
@@ -26,6 +27,76 @@ describe('programReducer', () => {
     expect(next.lanes[0].blocks).toHaveLength(1);
     expect(next.lanes[0].blocks[0].type).toBe('variable');
     expect(next.selectedLaneId).toBe(laneId);
+  });
+
+  it('adds multiple blocks to the same lane', () => {
+    const laneId = initialProgramState.lanes[0].id;
+    let state = programReducer(initialProgramState, {
+      type: 'ADD_BLOCK',
+      laneId,
+      blockType: 'variable',
+      parentBlockId: null,
+    });
+    state = programReducer(state, {
+      type: 'ADD_BLOCK',
+      laneId,
+      blockType: 'operation',
+      parentBlockId: null,
+    });
+
+    expect(state.lanes[0].blocks).toHaveLength(2);
+    expect(state.lanes[0].blocks.map((block) => block.type)).toEqual([
+      'variable',
+      'operation',
+    ]);
+  });
+
+  it('adds multiple blocks inside an if branch', () => {
+    const laneId = initialProgramState.lanes[0].id;
+    let state = programReducer(initialProgramState, {
+      type: 'ADD_BLOCK',
+      laneId,
+      blockType: 'if',
+      parentBlockId: null,
+    });
+    const ifId = state.lanes[0].blocks[0].id;
+
+    state = programReducer(state, {
+      type: 'ADD_BLOCK',
+      laneId,
+      blockType: 'variable',
+      parentBlockId: ifId,
+      parentBranch: 'then',
+    });
+    state = programReducer(state, {
+      type: 'ADD_BLOCK',
+      laneId,
+      blockType: 'operation',
+      parentBlockId: ifId,
+      parentBranch: 'then',
+    });
+
+    const ifBlock = state.lanes[0].blocks[0];
+    expect(ifBlock.type).toBe('if');
+    if (ifBlock.type === 'if') {
+      expect(ifBlock.children).toHaveLength(2);
+      expect(ifBlock.children.map((block) => block.type)).toEqual([
+        'variable',
+        'operation',
+      ]);
+    }
+  });
+
+  it('rejects adding a condition block at lane root', () => {
+    const laneId = initialProgramState.lanes[0].id;
+    const next = programReducer(initialProgramState, {
+      type: 'ADD_BLOCK',
+      laneId,
+      blockType: 'condition',
+      parentBlockId: null,
+    });
+
+    expect(next.lanes[0].blocks).toHaveLength(0);
   });
 
   it('renames a lane', () => {

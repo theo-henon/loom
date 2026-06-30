@@ -1,23 +1,21 @@
-import type { Comparator, ConditionBlockData } from '../../types/blocks';
+import type { IfBlockData } from '../../types/blocks';
 import { BlockTypeLabel } from './BlockTypeLabel';
 import { BlockList, type NestedBlockListProps } from './BlockList';
 import { Button } from '../ui/Button';
 
-type ConditionBlockProps = {
-  block: ConditionBlockData;
-  onChange: (block: ConditionBlockData) => void;
+type IfBlockProps = {
+  block: IfBlockData;
+  onChange: (block: IfBlockData) => void;
   laneId: string;
   nestedListProps: NestedBlockListProps;
 };
 
-const COMPARATORS: Comparator[] = ['==', '!=', '<', '>', '<=', '>='];
-
-export function ConditionBlock({
+export function IfBlock({
   block,
   onChange,
   laneId,
   nestedListProps,
-}: ConditionBlockProps) {
+}: IfBlockProps) {
   const enableElse = () => {
     onChange({ ...block, hasElse: true });
   };
@@ -28,50 +26,24 @@ export function ConditionBlock({
 
   return (
     <div className="space-y-2 text-sm">
-      <BlockTypeLabel type="condition" />
+      <BlockTypeLabel type="if" />
       <p className="text-xs text-gray-400">
-        Les blocs « Alors » s&apos;exécutent si la condition est vraie.
+        Insérez un bloc Condition, puis les blocs à exécuter dans « Alors ».
       </p>
-      <label className="flex flex-col gap-1">
-        <span className="text-xs text-gray-500">Variable</span>
-        <input
-          className="rounded border border-gray-300 px-2 py-1"
-          value={block.variable}
-          onChange={(event) =>
-            onChange({ ...block, variable: event.target.value })
-          }
+
+      <div className="mt-3">
+        <p className="mb-2 text-xs font-medium text-gray-500">Condition</p>
+        <BlockList
+          laneId={laneId}
+          blocks={block.condition}
+          parentBlockId={block.id}
+          parentBranch="condition"
+          allowedBlockTypes={['condition']}
+          emptyLabel="Glissez un bloc Condition ici."
+          appendLabel=""
+          {...nestedListProps}
         />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-xs text-gray-500">Comparateur</span>
-        <select
-          className="rounded border border-gray-300 px-2 py-1"
-          value={block.comparator}
-          onChange={(event) =>
-            onChange({
-              ...block,
-              comparator: event.target.value as Comparator,
-            })
-          }
-        >
-          {COMPARATORS.map((comparator) => (
-            <option key={comparator} value={comparator}>
-              {comparator}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-xs text-gray-500">Valeur de comparaison</span>
-        <input
-          type="number"
-          className="rounded border border-gray-300 px-2 py-1"
-          value={block.value}
-          onChange={(event) =>
-            onChange({ ...block, value: Number(event.target.value) })
-          }
-        />
-      </label>
+      </div>
 
       <div className="mt-3">
         <p className="mb-2 text-xs font-medium text-gray-500">Alors</p>

@@ -1,4 +1,5 @@
-import type { Block } from '../types/blocks';
+import type { Block, BlockContainer } from '../types/blocks';
+import { getContainerPredicate } from '../types/blocks';
 import type { Lane } from '../types/lane';
 import type {
   EnginePhase,
@@ -76,26 +77,39 @@ function updateTopFrame(
   return { ...thread, frames };
 }
 
-function handleLoopBodyEnd(thread: ThreadState): ThreadState {
-  const loopFrame = thread.loopStack[thread.loopStack.length - 1];
-  if (!loopFrame) {
+function evaluateContainerCondition(
+  block: BlockContainer,
+  variables: Record<string, number>,
+): boolean | null {
+  const predicate = getContainerPredicate(block);
+  if (!predicate) {
+    return null;
+  }
+  return evaluateCondition(predicate, variables);
+}
+
+function handleLoopBodyEnd(
+  thread: ThreadState,
+  variables: Record<string, number>,
+  mutexes: MutexRegistry,
+): ThreadState {
+  const loopBodyFrame = currentFrame(thread);
+  const parentFrames = thread.frames.slice(0, -1);
+  const parent = parentFrames[parentFrames.length - 1];
+  const loopBlock = parent.blocks[parent.pc];
+
+  if (loopBlock?.type !== 'loop') {
     return { ...thread, status: 'done' };
   }
 
-  const remaining = loopFrame.remaining - 1;
-  if (remaining > 0) {
+  const conditionResult = evaluateContainerCondition(loopBlock, variables);
+  if (conditionResult === true) {
     return {
       ...thread,
-      loopStack: [...thread.loopStack.slice(0, -1), { remaining }],
-      frames: [
-        ...thread.frames.slice(0, -1),
-        { ...currentFrame(thread), pc: 0 },
-      ],
+      frames: [...parentFrames, { ...loopBodyFrame, pc: 0 }],
     };
   }
 
-  const parentFrames = thread.frames.slice(0, -1);
-  const parent = parentFrames[parentFrames.length - 1];
   const updated: ThreadState = {
     ...thread,
     loopStack: thread.loopStack.slice(0, -1),
@@ -103,12 +117,16 @@ function handleLoopBodyEnd(thread: ThreadState): ThreadState {
   };
   const frame = currentFrame(updated);
   if (frame.pc >= frame.blocks.length) {
-    return handleFrameComplete(updated);
+    return handleFrameComplete(updated, variables, mutexes);
   }
   return updated;
 }
 
-function handleConditionBranchEnd(thread: ThreadState): ThreadState {
+function handleConditionBranchEnd(
+  thread: ThreadState,
+  variables: Record<string, number>,
+  mutexes: MutexRegistry,
+): ThreadState {
   const parentFrames = thread.frames.slice(0, -1);
   const parent = parentFrames[parentFrames.length - 1];
   const updated: ThreadState = {
@@ -117,32 +135,44 @@ function handleConditionBranchEnd(thread: ThreadState): ThreadState {
   };
   const frame = currentFrame(updated);
   if (frame.pc >= frame.blocks.length) {
-    return handleFrameComplete(updated);
+    return handleFrameComplete(updated, variables, mutexes);
   }
   return updated;
 }
 
-function handleConditionBodyEnd(thread: ThreadState): ThreadState {
-  return handleConditionBranchEnd(thread);
+function handleConditionBodyEnd(
+  thread: ThreadState,
+  variables: Record<string, number>,
+  mutexes: MutexRegistry,
+): ThreadState {
+  return handleConditionBranchEnd(thread, variables, mutexes);
 }
 
-function handleConditionElseBodyEnd(thread: ThreadState): ThreadState {
-  return handleConditionBranchEnd(thread);
+function handleConditionElseBodyEnd(
+  thread: ThreadState,
+  variables: Record<string, number>,
+  mutexes: MutexRegistry,
+): ThreadState {
+  return handleConditionBranchEnd(thread, variables, mutexes);
 }
 
-function handleFrameComplete(thread: ThreadState): ThreadState {
+function handleFrameComplete(
+  thread: ThreadState,
+  variables: Record<string, number>,
+  mutexes: MutexRegistry,
+): ThreadState {
   const frame = currentFrame(thread);
 
   if (frame.kind === 'loop-body') {
-    return handleLoopBodyEnd(thread);
+    return handleLoopBodyEnd(thread, variables, mutexes);
   }
 
   if (frame.kind === 'condition-body') {
-    return handleConditionBodyEnd(thread);
+    return handleConditionBodyEnd(thread, variables, mutexes);
   }
 
   if (frame.kind === 'condition-else-body') {
-    return handleConditionElseBodyEnd(thread);
+    return handleConditionElseBodyEnd(thread, variables, mutexes);
   }
 
   return { ...thread, status: 'done' };
@@ -151,6 +181,7 @@ function handleFrameComplete(thread: ThreadState): ThreadState {
 function handleMutexEnd(
   thread: ThreadState,
   mutexes: MutexRegistry,
+  variables: Record<string, number>,
 ): ThreadState {
   const frame = thread.mutexStack[thread.mutexStack.length - 1];
   if (!frame) {
@@ -168,22 +199,24 @@ function handleMutexEnd(
       { pc: frame.bodyEnd },
     ),
     mutexes,
+    variables,
   );
 }
 
 function afterAdvance(
   thread: ThreadState,
   mutexes: MutexRegistry,
+  variables: Record<string, number>,
 ): ThreadState {
   const frame = currentFrame(thread);
   const mutexFrame = thread.mutexStack[thread.mutexStack.length - 1];
 
   if (mutexFrame && frame.pc === mutexFrame.bodyEnd) {
-    return handleMutexEnd(thread, mutexes);
+    return handleMutexEnd(thread, mutexes, variables);
   }
 
   if (frame.pc >= frame.blocks.length) {
-    return handleFrameComplete(thread);
+    return handleFrameComplete(thread, variables, mutexes);
   }
 
   return thread;
@@ -192,10 +225,12 @@ function afterAdvance(
 function advanceInFrame(
   thread: ThreadState,
   mutexes: MutexRegistry,
+  variables: Record<string, number>,
 ): ThreadState {
   return afterAdvance(
     updateTopFrame(thread, { pc: currentFrame(thread).pc + 1 }),
     mutexes,
+    variables,
   );
 }
 
@@ -204,6 +239,7 @@ function enterMutex(
   block: Extract<Block, { type: 'mutex' }>,
   blocks: Block[],
   mutexes: MutexRegistry,
+  variables: Record<string, number>,
 ): ThreadState {
   const pc = currentFrame(thread).pc;
   const frame: (typeof thread.mutexStack)[number] = {
@@ -215,7 +251,7 @@ function enterMutex(
 
   if (frame.bodyStart >= frame.bodyEnd) {
     releaseMutex(mutexes, block.name, thread.laneId);
-    return advanceInFrame(thread, mutexes);
+    return advanceInFrame(thread, mutexes, variables);
   }
 
   return afterAdvance(
@@ -228,45 +264,78 @@ function enterMutex(
       ],
     },
     mutexes,
+    variables,
   );
 }
 
-function enterConditionBody(
+function enterIfBody(
   thread: ThreadState,
-  block: Extract<Block, { type: 'condition' }>,
+  block: Extract<Block, { type: 'if' }>,
   mutexes: MutexRegistry,
+  variables: Record<string, number>,
 ): ThreadState {
   if (block.children.length === 0) {
-    return advanceInFrame(thread, mutexes);
+    return advanceInFrame(thread, mutexes, variables);
   }
 
   return pushFrame(thread, block.children, 'condition-body');
 }
 
-function enterConditionElseBody(
+function enterIfElseBody(
   thread: ThreadState,
-  block: Extract<Block, { type: 'condition' }>,
+  block: Extract<Block, { type: 'if' }>,
   mutexes: MutexRegistry,
+  variables: Record<string, number>,
 ): ThreadState {
   if (block.elseChildren.length === 0) {
-    return advanceInFrame(thread, mutexes);
+    return advanceInFrame(thread, mutexes, variables);
   }
 
   return pushFrame(thread, block.elseChildren, 'condition-else-body');
 }
 
+function handleIfBlock(
+  thread: ThreadState,
+  block: Extract<Block, { type: 'if' }>,
+  variables: Record<string, number>,
+  mutexes: MutexRegistry,
+): ThreadState {
+  const conditionResult = evaluateContainerCondition(block, variables);
+  if (conditionResult === null) {
+    return { ...thread, status: 'blocked' };
+  }
+  if (conditionResult) {
+    return enterIfBody(thread, block, mutexes, variables);
+  }
+  if (block.hasElse) {
+    return enterIfElseBody(thread, block, mutexes, variables);
+  }
+  return { ...thread, status: 'blocked' };
+}
+
 function enterLoopBody(
   thread: ThreadState,
   block: Extract<Block, { type: 'loop' }>,
+  variables: Record<string, number>,
   mutexes: MutexRegistry,
 ): ThreadState {
+  const conditionResult = evaluateContainerCondition(block, variables);
+  if (conditionResult === null) {
+    return { ...thread, status: 'blocked' };
+  }
+  if (!conditionResult) {
+    return advanceInFrame(thread, mutexes, variables);
+  }
   if (block.children.length === 0) {
-    return advanceInFrame(thread, mutexes);
+    return {
+      ...pushFrame(thread, block.children, 'loop-body'),
+      loopStack: [...thread.loopStack, {}],
+    };
   }
 
   return {
     ...pushFrame(thread, block.children, 'loop-body'),
-    loopStack: [...thread.loopStack, { remaining: block.iterations }],
+    loopStack: [...thread.loopStack, {}],
   };
 }
 
@@ -283,34 +352,28 @@ function stepRunningThread(
   }
 
   if (pc >= blocks.length) {
-    return handleFrameComplete(thread);
+    return handleFrameComplete(thread, variables, mutexes);
   }
 
   const block = blocks[pc];
 
-  if (block.type === 'condition') {
-    if (evaluateCondition(block, variables)) {
-      return enterConditionBody(thread, block, mutexes);
-    }
-    if (block.hasElse) {
-      return enterConditionElseBody(thread, block, mutexes);
-    }
-    return { ...thread, status: 'blocked' };
+  if (block.type === 'if') {
+    return handleIfBlock(thread, block, variables, mutexes);
   }
 
   if (block.type === 'mutex') {
     if (tryAcquireMutex(mutexes, block.name, thread.laneId)) {
-      return enterMutex(thread, block, blocks, mutexes);
+      return enterMutex(thread, block, blocks, mutexes, variables);
     }
     return { ...thread, status: 'blocked' };
   }
 
   if (block.type === 'loop') {
-    return enterLoopBody(thread, block, mutexes);
+    return enterLoopBody(thread, block, variables, mutexes);
   }
 
   executeBlock(block, variables);
-  return advanceInFrame(thread, mutexes);
+  return advanceInFrame(thread, mutexes, variables);
 }
 
 export function stepThread(
@@ -346,21 +409,13 @@ export function stepThread(
     const block =
       currentFrame(threadWithBlocks).blocks[currentFrame(threadWithBlocks).pc];
 
-    if (block?.type === 'condition') {
-      if (evaluateCondition(block, variables)) {
-        return enterConditionBody(
-          { ...threadWithBlocks, status: 'running' },
-          block,
-          mutexes,
-        );
-      }
-      if (block.hasElse) {
-        return enterConditionElseBody(
-          { ...threadWithBlocks, status: 'running' },
-          block,
-          mutexes,
-        );
-      }
+    if (block?.type === 'if') {
+      return handleIfBlock(
+        { ...threadWithBlocks, status: 'running' },
+        block,
+        variables,
+        mutexes,
+      );
     }
 
     if (
@@ -372,6 +427,7 @@ export function stepThread(
         block,
         currentFrame(threadWithBlocks).blocks,
         mutexes,
+        variables,
       );
     }
 

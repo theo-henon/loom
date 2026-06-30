@@ -1,5 +1,5 @@
-import type { Block } from '../../types/blocks';
-import type { ConditionBranch } from '../../types/blockTree';
+import type { Block, BlockType } from '../../types/blocks';
+import type { ContainerBranch } from '../../types/blockTree';
 import type { ThreadStatus } from '../../types/execution';
 import { useProgram } from '../../hooks/useProgram';
 import { parseBlockDragData, parseDroppedBlockType } from '../palette/drag';
@@ -9,13 +9,15 @@ type BlockListProps = {
   laneId: string;
   blocks: Block[];
   parentBlockId: string | null;
-  parentBranch?: ConditionBranch;
+  parentBranch?: ContainerBranch;
+  allowedBlockTypes?: BlockType[];
   activeBlockId: string | null;
   threadColor: string;
   threadStatus: ThreadStatus;
   isRunning: boolean;
   getMutexOwnerLabel: (mutexName: string) => string | null;
   emptyLabel?: string;
+  appendLabel?: string;
 };
 
 export function BlockList({
@@ -23,14 +25,19 @@ export function BlockList({
   blocks,
   parentBlockId,
   parentBranch = 'then',
+  allowedBlockTypes,
   activeBlockId,
   threadColor,
   threadStatus,
   isRunning,
   getMutexOwnerLabel,
   emptyLabel = 'Glissez des blocs ici.',
+  appendLabel = 'Déposer ici pour ajouter en bas',
 }: BlockListProps) {
   const { addBlock, updateBlock, removeBlock, moveBlock } = useProgram();
+
+  const canAcceptBlockType = (blockType: BlockType) =>
+    !allowedBlockTypes || allowedBlockTypes.includes(blockType);
 
   const handleDrop = (
     event: React.DragEvent<HTMLDivElement>,
@@ -41,6 +48,9 @@ export function BlockList({
 
     const blockType = parseDroppedBlockType(event.dataTransfer);
     if (blockType) {
+      if (!canAcceptBlockType(blockType)) {
+        return;
+      }
       addBlock(laneId, blockType, parentBlockId, index, parentBranch);
       return;
     }
@@ -58,16 +68,23 @@ export function BlockList({
     }
   };
 
-  const handlePaletteDropAtEnd = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleAppendDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    if (parentBranch === 'condition' && blocks.length >= 1) {
+      return;
+    }
     handleDrop(event, blocks.length);
   };
+
+  const showAppendZone =
+    appendLabel.length > 0 &&
+    !(parentBranch === 'condition' && blocks.length >= 1);
 
   if (blocks.length === 0) {
     return (
       <div
         className="rounded-lg border border-dashed border-gray-300 bg-gray-50/50 p-3"
         onDragOver={(event) => event.preventDefault()}
-        onDrop={handlePaletteDropAtEnd}
+        onDrop={handleAppendDrop}
       >
         <p className="text-center text-xs text-gray-400">{emptyLabel}</p>
       </div>
@@ -104,17 +121,20 @@ export function BlockList({
           />
         </div>
       ))}
-      <div
-        className="h-2 rounded border border-dashed border-transparent hover:border-gray-300"
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={handlePaletteDropAtEnd}
-        aria-hidden
-      />
+      {showAppendZone ? (
+        <div
+          className="rounded-lg border border-dashed border-transparent p-3 transition-colors hover:border-gray-300 hover:bg-gray-50/50"
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={handleAppendDrop}
+        >
+          <p className="text-center text-xs text-gray-400">{appendLabel}</p>
+        </div>
+      ) : null}
     </div>
   );
 }
 
 export type NestedBlockListProps = Omit<
   BlockListProps,
-  'laneId' | 'blocks' | 'parentBlockId' | 'emptyLabel'
+  'laneId' | 'blocks' | 'parentBlockId' | 'emptyLabel' | 'appendLabel'
 >;

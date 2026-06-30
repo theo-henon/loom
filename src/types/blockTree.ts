@@ -1,21 +1,49 @@
-import type { Block, ConditionBlockData, LoopBlockData } from './blocks';
+import type { Block, BlockContainer } from './blocks';
 
-export type BlockContainer = ConditionBlockData | LoopBlockData;
-
-export type ConditionBranch = 'then' | 'else';
+export type ContainerBranch = 'then' | 'else' | 'condition';
 
 export function blockHasChildren(block: Block): block is BlockContainer {
-  return block.type === 'condition' || block.type === 'loop';
+  return block.type === 'if' || block.type === 'loop';
 }
 
-function mapConditionBlock(
-  block: ConditionBlockData,
+export function getContainerBranchBlocks(
+  block: BlockContainer,
+  branch: ContainerBranch,
+): Block[] {
+  if (branch === 'condition') {
+    return block.condition;
+  }
+  if (branch === 'else' && block.type === 'if') {
+    return block.elseChildren;
+  }
+  return block.children;
+}
+
+function setContainerBranchBlocks(
+  block: BlockContainer,
+  branch: ContainerBranch,
+  blocks: Block[],
+): BlockContainer {
+  if (branch === 'condition') {
+    return { ...block, condition: blocks };
+  }
+  if (branch === 'else' && block.type === 'if') {
+    return { ...block, elseChildren: blocks };
+  }
+  return { ...block, children: blocks };
+}
+
+function mapContainerBlock(
+  block: BlockContainer,
   mapper: (block: Block) => Block,
-): ConditionBlockData {
+): BlockContainer {
   return {
     ...block,
+    condition: mapBlockTree(block.condition, mapper),
     children: mapBlockTree(block.children, mapper),
-    elseChildren: mapBlockTree(block.elseChildren, mapper),
+    ...(block.type === 'if'
+      ? { elseChildren: mapBlockTree(block.elseChildren, mapper) }
+      : {}),
   };
 }
 
@@ -25,14 +53,8 @@ export function mapBlockTree(
 ): Block[] {
   return blocks.map((block) => {
     const next = mapper(block);
-    if (next.type === 'condition') {
-      return mapConditionBlock(next, mapper);
-    }
-    if (next.type === 'loop') {
-      return {
-        ...next,
-        children: mapBlockTree(next.children, mapper),
-      };
+    if (next.type === 'if' || next.type === 'loop') {
+      return mapContainerBlock(next, mapper);
     }
     return next;
   });
@@ -50,26 +72,17 @@ function updateInBlockList(
       updated = true;
       return updater(block);
     }
-    if (block.type === 'condition') {
-      const childResult = updateInBlockList(block.children, blockId, updater);
-      if (childResult) {
-        updated = true;
-        return { ...block, children: childResult };
-      }
-      const elseResult = updateInBlockList(
-        block.elseChildren,
-        blockId,
-        updater,
-      );
-      if (elseResult) {
-        updated = true;
-        return { ...block, elseChildren: elseResult };
-      }
-    } else if (block.type === 'loop') {
-      const childResult = updateInBlockList(block.children, blockId, updater);
-      if (childResult) {
-        updated = true;
-        return { ...block, children: childResult };
+    if (block.type === 'if' || block.type === 'loop') {
+      for (const branch of ['condition', 'then', 'else'] as const) {
+        if (branch === 'else' && block.type !== 'if') {
+          continue;
+        }
+        const branchBlocks = getContainerBranchBlocks(block, branch);
+        const branchResult = updateInBlockList(branchBlocks, blockId, updater);
+        if (branchResult) {
+          updated = true;
+          return setContainerBranchBlocks(block, branch, branchResult);
+        }
       }
     }
     return block;
@@ -97,22 +110,17 @@ function removeFromBlockList(
       removed = block;
       return [];
     }
-    if (block.type === 'condition') {
-      const childResult = removeFromBlockList(block.children, blockId);
-      if (childResult.removed) {
-        removed = childResult.removed;
-        return [{ ...block, children: childResult.blocks }];
-      }
-      const elseResult = removeFromBlockList(block.elseChildren, blockId);
-      if (elseResult.removed) {
-        removed = elseResult.removed;
-        return [{ ...block, elseChildren: elseResult.blocks }];
-      }
-    } else if (block.type === 'loop') {
-      const childResult = removeFromBlockList(block.children, blockId);
-      if (childResult.removed) {
-        removed = childResult.removed;
-        return [{ ...block, children: childResult.blocks }];
+    if (block.type === 'if' || block.type === 'loop') {
+      for (const branch of ['condition', 'then', 'else'] as const) {
+        if (branch === 'else' && block.type !== 'if') {
+          continue;
+        }
+        const branchBlocks = getContainerBranchBlocks(block, branch);
+        const branchResult = removeFromBlockList(branchBlocks, blockId);
+        if (branchResult.removed) {
+          removed = branchResult.removed;
+          return [setContainerBranchBlocks(block, branch, branchResult.blocks)];
+        }
       }
     }
     return [block];
@@ -133,54 +141,40 @@ function insertInBlockList(
   parentBlockId: string,
   index: number,
   block: Block,
-  branch: ConditionBranch,
+  branch: ContainerBranch,
 ): Block[] | null {
   let inserted = false;
 
   const next = blocks.map((entry) => {
-    if (entry.id === parentBlockId && entry.type === 'condition') {
+    if (
+      entry.id === parentBlockId &&
+      (entry.type === 'if' || entry.type === 'loop')
+    ) {
       inserted = true;
-      const target =
-        branch === 'else' ? [...entry.elseChildren] : [...entry.children];
+      if (branch === 'condition') {
+        return { ...entry, condition: [block] };
+      }
+      const target = [...getContainerBranchBlocks(entry, branch)];
       target.splice(Math.max(0, Math.min(index, target.length)), 0, block);
-      return branch === 'else'
-        ? { ...entry, elseChildren: target }
-        : { ...entry, children: target };
+      return setContainerBranchBlocks(entry, branch, target);
     }
-    if (entry.type === 'condition') {
-      const childResult = insertInBlockList(
-        entry.children,
-        parentBlockId,
-        index,
-        block,
-        branch,
-      );
-      if (childResult) {
-        inserted = true;
-        return { ...entry, children: childResult };
-      }
-      const elseResult = insertInBlockList(
-        entry.elseChildren,
-        parentBlockId,
-        index,
-        block,
-        branch,
-      );
-      if (elseResult) {
-        inserted = true;
-        return { ...entry, elseChildren: elseResult };
-      }
-    } else if (entry.type === 'loop') {
-      const childResult = insertInBlockList(
-        entry.children,
-        parentBlockId,
-        index,
-        block,
-        branch,
-      );
-      if (childResult) {
-        inserted = true;
-        return { ...entry, children: childResult };
+    if (entry.type === 'if' || entry.type === 'loop') {
+      for (const childBranch of ['condition', 'then', 'else'] as const) {
+        if (childBranch === 'else' && entry.type !== 'if') {
+          continue;
+        }
+        const childBlocks = getContainerBranchBlocks(entry, childBranch);
+        const childResult = insertInBlockList(
+          childBlocks,
+          parentBlockId,
+          index,
+          block,
+          branch,
+        );
+        if (childResult) {
+          inserted = true;
+          return setContainerBranchBlocks(entry, childBranch, childResult);
+        }
       }
     }
     return entry;
@@ -194,7 +188,7 @@ export function insertBlockInTree(
   parentBlockId: string | null,
   index: number,
   block: Block,
-  branch: ConditionBranch = 'then',
+  branch: ContainerBranch = 'then',
 ): Block[] {
   if (parentBlockId === null) {
     const next = [...blocks];
@@ -214,14 +208,16 @@ export function insertBlockInTree(
   }
 
   return blocks.map((entry) => {
-    if (entry.id === parentBlockId && entry.type === 'loop') {
-      const children = [...entry.children];
-      children.splice(Math.max(0, Math.min(index, children.length)), 0, block);
-      return { ...entry, children };
-    }
-    if (entry.type === 'condition') {
+    if (entry.type === 'if' || entry.type === 'loop') {
       return {
         ...entry,
+        condition: insertBlockInTree(
+          entry.condition,
+          parentBlockId,
+          index,
+          block,
+          branch,
+        ),
         children: insertBlockInTree(
           entry.children,
           parentBlockId,
@@ -229,25 +225,17 @@ export function insertBlockInTree(
           block,
           branch,
         ),
-        elseChildren: insertBlockInTree(
-          entry.elseChildren,
-          parentBlockId,
-          index,
-          block,
-          branch,
-        ),
-      };
-    }
-    if (entry.type === 'loop') {
-      return {
-        ...entry,
-        children: insertBlockInTree(
-          entry.children,
-          parentBlockId,
-          index,
-          block,
-          branch,
-        ),
+        ...(entry.type === 'if'
+          ? {
+              elseChildren: insertBlockInTree(
+                entry.elseChildren,
+                parentBlockId,
+                index,
+                block,
+                branch,
+              ),
+            }
+          : {}),
       };
     }
     return entry;
@@ -259,17 +247,18 @@ function findInBlockList(blocks: Block[], blockId: string): Block | undefined {
     if (block.id === blockId) {
       return block;
     }
-    if (block.type === 'condition') {
-      const nested =
-        findInBlockList(block.children, blockId) ??
-        findInBlockList(block.elseChildren, blockId);
-      if (nested) {
-        return nested;
-      }
-    } else if (block.type === 'loop') {
-      const nested = findInBlockList(block.children, blockId);
-      if (nested) {
-        return nested;
+    if (block.type === 'if' || block.type === 'loop') {
+      for (const branch of ['condition', 'then', 'else'] as const) {
+        if (branch === 'else' && block.type !== 'if') {
+          continue;
+        }
+        const nested = findInBlockList(
+          getContainerBranchBlocks(block, branch),
+          blockId,
+        );
+        if (nested) {
+          return nested;
+        }
       }
     }
   }
@@ -292,23 +281,19 @@ function findParentInBlockList(
     if (block.id === blockId) {
       return parentId;
     }
-    if (block.type === 'condition') {
-      const inThen = findParentInBlockList(block.children, blockId, block.id);
-      if (inThen !== undefined) {
-        return inThen;
-      }
-      const inElse = findParentInBlockList(
-        block.elseChildren,
-        blockId,
-        block.id,
-      );
-      if (inElse !== undefined) {
-        return inElse;
-      }
-    } else if (block.type === 'loop') {
-      const nested = findParentInBlockList(block.children, blockId, block.id);
-      if (nested !== undefined) {
-        return nested;
+    if (block.type === 'if' || block.type === 'loop') {
+      for (const branch of ['condition', 'then', 'else'] as const) {
+        if (branch === 'else' && block.type !== 'if') {
+          continue;
+        }
+        const nested = findParentInBlockList(
+          getContainerBranchBlocks(block, branch),
+          blockId,
+          block.id,
+        );
+        if (nested !== undefined) {
+          return nested;
+        }
       }
     }
   }
@@ -323,25 +308,31 @@ export function findBlockParentId(
   return findParentInBlockList(blocks, blockId, parentId);
 }
 
-export function getConditionBranchLength(
-  block: ConditionBlockData,
-  branch: ConditionBranch,
+export function getContainerBranchLength(
+  block: BlockContainer,
+  branch: ContainerBranch,
 ): number {
-  return branch === 'else' ? block.elseChildren.length : block.children.length;
+  return getContainerBranchBlocks(block, branch).length;
 }
 
 export function countBlocksInTree(blocks: Block[]): number {
   return blocks.reduce((total, block) => {
-    if (block.type === 'condition') {
+    if (block.type === 'if') {
       return (
         total +
         1 +
+        countBlocksInTree(block.condition) +
         countBlocksInTree(block.children) +
         countBlocksInTree(block.elseChildren)
       );
     }
     if (block.type === 'loop') {
-      return total + 1 + countBlocksInTree(block.children);
+      return (
+        total +
+        1 +
+        countBlocksInTree(block.condition) +
+        countBlocksInTree(block.children)
+      );
     }
     return total + 1;
   }, 0);

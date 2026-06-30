@@ -44,18 +44,24 @@ describe('timeline', () => {
     );
   });
 
-  it('merges consecutive ticks on the same blocked condition block', () => {
-    const lane = {
-      ...createLane(1),
-      blocks: [
-        { ...createBlock('variable'), name: 'x', value: 1 },
+  it('merges consecutive ticks on the same blocked if block', () => {
+    const ifBlock = {
+      ...(createBlock('if') as Extract<
+        ReturnType<typeof createBlock>,
+        { type: 'if' }
+      >),
+      condition: [
         {
           ...createBlock('condition'),
           variable: 'x',
-          comparator: '==',
+          comparator: '==' as const,
           value: 0,
         },
       ],
+    };
+    const lane = {
+      ...createLane(1),
+      blocks: [{ ...createBlock('variable'), name: 'x', value: 1 }, ifBlock],
     };
 
     let state = createEngineState([lane]);
@@ -65,22 +71,30 @@ describe('timeline', () => {
 
     expect(state.timeline).toHaveLength(2);
     expect(state.timeline[1]).toMatchObject({
-      blockLabel: BLOCK_TYPE_LABELS.condition,
+      blockLabel: BLOCK_TYPE_LABELS.if,
       startTick: 2,
       endTick: 4,
     });
   });
 
   it('appendTimelineForTick merges adjacent segments with the same block', () => {
-    const conditionBlock = {
-      ...createBlock('condition'),
-      variable: 'x',
-      comparator: '==' as const,
-      value: 0,
+    const ifBlock = {
+      ...(createBlock('if') as Extract<
+        ReturnType<typeof createBlock>,
+        { type: 'if' }
+      >),
+      condition: [
+        {
+          ...createBlock('condition'),
+          variable: 'x',
+          comparator: '==' as const,
+          value: 0,
+        },
+      ],
     };
     const lane = {
       ...createLane(1),
-      blocks: [conditionBlock],
+      blocks: [ifBlock],
     };
     const blockedThread: ThreadState = {
       laneId: lane.id,

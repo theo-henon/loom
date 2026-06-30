@@ -1,4 +1,5 @@
 import type { Scenario } from './types';
+import { scenarioCondition } from './blockHelpers';
 import { scenarioLane } from './buildScenario';
 
 export const deadlockScenario: Scenario = {
@@ -11,10 +12,8 @@ export const deadlockScenario: Scenario = {
     scenarioLane('deadlock-lane-a', 0, 'Thread A', [
       {
         id: 'deadlock-a-check-a',
-        type: 'condition',
-        variable: 'lockA',
-        comparator: '==',
-        value: 0,
+        type: 'if',
+        condition: [scenarioCondition('deadlock-a-cond-a', 'lockA', '==', 0)],
         children: [
           {
             id: 'deadlock-a-acquire-a',
@@ -28,10 +27,8 @@ export const deadlockScenario: Scenario = {
       },
       {
         id: 'deadlock-a-check-b',
-        type: 'condition',
-        variable: 'lockB',
-        comparator: '==',
-        value: 0,
+        type: 'if',
+        condition: [scenarioCondition('deadlock-a-cond-b', 'lockB', '==', 0)],
         children: [
           {
             id: 'deadlock-a-acquire-b',
@@ -47,10 +44,8 @@ export const deadlockScenario: Scenario = {
     scenarioLane('deadlock-lane-b', 1, 'Thread B', [
       {
         id: 'deadlock-b-check-b',
-        type: 'condition',
-        variable: 'lockB',
-        comparator: '==',
-        value: 0,
+        type: 'if',
+        condition: [scenarioCondition('deadlock-b-cond-b', 'lockB', '==', 0)],
         children: [
           {
             id: 'deadlock-b-acquire-b',
@@ -64,10 +59,8 @@ export const deadlockScenario: Scenario = {
       },
       {
         id: 'deadlock-b-check-a',
-        type: 'condition',
-        variable: 'lockA',
-        comparator: '==',
-        value: 0,
+        type: 'if',
+        condition: [scenarioCondition('deadlock-b-cond-a', 'lockA', '==', 0)],
         children: [
           {
             id: 'deadlock-b-acquire-a',

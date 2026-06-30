@@ -9,7 +9,8 @@ type BlockTypeIconProps = {
 const ICON_STYLES: Record<BlockType, string> = {
   variable: 'bg-indigo-100 text-indigo-700',
   operation: 'bg-emerald-100 text-emerald-700',
-  condition: 'bg-amber-100 text-amber-800',
+  condition: 'bg-sky-100 text-sky-800',
+  if: 'bg-amber-100 text-amber-800',
   loop: 'bg-violet-100 text-violet-700',
   mutex: 'bg-rose-100 text-rose-700',
 };
@@ -84,6 +85,7 @@ const ICONS: Record<BlockType, () => ReactElement> = {
   variable: VariableIcon,
   operation: OperationIcon,
   condition: ConditionIcon,
+  if: ConditionIcon,
   loop: LoopIcon,
   mutex: MutexIcon,
 };

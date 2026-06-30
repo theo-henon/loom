@@ -4,11 +4,12 @@ import type { ThreadStatus } from '../../types/execution';
 import { setBlockDragData } from '../palette/drag';
 import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
-import { BlockList, type NestedBlockListProps } from './BlockList';
-import { ConditionBlock } from './ConditionBlock';
+import { type NestedBlockListProps } from './BlockList';
+import { IfBlock } from './IfBlock';
 import { LoopBlock } from './LoopBlock';
 import { MutexBlock } from './MutexBlock';
 import { OperationBlock } from './OperationBlock';
+import { PredicateBlock } from './PredicateBlock';
 import { VariableBlock } from './VariableBlock';
 
 type BlockRendererProps = {
@@ -36,17 +37,20 @@ export function BlockRenderer({
   mutexOwnerLabel = null,
   nestedListProps,
 }: BlockRendererProps) {
+  const borderAccent =
+    block.type === 'if'
+      ? 'border-l-4 border-l-amber-200'
+      : block.type === 'loop'
+        ? 'border-l-4 border-l-violet-200'
+        : block.type === 'condition'
+          ? 'border-l-4 border-l-sky-200'
+          : '';
+
   return (
     <div
       className={`relative rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow duration-300 ${
         isActive && threadColor ? 'shadow-md' : ''
-      } ${
-        block.type === 'condition'
-          ? 'border-l-4 border-l-amber-200'
-          : block.type === 'loop'
-            ? 'border-l-4 border-l-violet-200'
-            : ''
-      }`}
+      } ${borderAccent}`}
       style={
         isActive && threadColor
           ? ({ boxShadow: `0 0 0 2px ${threadColor}` } as CSSProperties)
@@ -88,15 +92,24 @@ export function BlockRenderer({
       {block.type === 'operation' && (
         <OperationBlock block={block} onChange={onChange} />
       )}
-      {block.type === 'condition' && nestedListProps ? (
-        <ConditionBlock
+      {block.type === 'condition' && (
+        <PredicateBlock block={block} onChange={onChange} />
+      )}
+      {block.type === 'if' && nestedListProps ? (
+        <IfBlock
           block={block}
           onChange={onChange}
           laneId={laneId}
           nestedListProps={nestedListProps}
         />
       ) : null}
-      {block.type === 'loop' && <LoopBlock block={block} onChange={onChange} />}
+      {block.type === 'loop' && nestedListProps ? (
+        <LoopBlock
+          block={block}
+          laneId={laneId}
+          nestedListProps={nestedListProps}
+        />
+      ) : null}
       {block.type === 'mutex' && (
         <MutexBlock
           block={block}
@@ -104,17 +117,6 @@ export function BlockRenderer({
           ownerLabel={mutexOwnerLabel}
         />
       )}
-      {block.type === 'loop' && nestedListProps ? (
-        <div className="mt-3">
-          <p className="mb-2 text-xs font-medium text-gray-500">Corps</p>
-          <BlockList
-            laneId={laneId}
-            blocks={block.children}
-            parentBlockId={block.id}
-            {...nestedListProps}
-          />
-        </div>
-      ) : null}
     </div>
   );
 }

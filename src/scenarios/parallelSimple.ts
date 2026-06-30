@@ -1,4 +1,5 @@
 import type { Scenario } from './types';
+import { scenarioCondition } from './blockHelpers';
 import { scenarioLane } from './buildScenario';
 
 export const parallelSimpleScenario: Scenario = {
@@ -13,7 +14,7 @@ export const parallelSimpleScenario: Scenario = {
       {
         id: 'parallel-a-loop',
         type: 'loop',
-        iterations: 3,
+        condition: [scenarioCondition('parallel-a-cond', 'a', '<', 3)],
         children: [
           {
             id: 'parallel-a-op',
@@ -30,7 +31,7 @@ export const parallelSimpleScenario: Scenario = {
       {
         id: 'parallel-b-loop',
         type: 'loop',
-        iterations: 3,
+        condition: [scenarioCondition('parallel-b-cond', 'b', '<', 3)],
         children: [
           {
             id: 'parallel-b-op',

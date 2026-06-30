@@ -12,9 +12,6 @@ describe('blockSemantics', () => {
       variable: 'x',
       comparator: '>=' as const,
       value: 5,
-      children: [],
-      hasElse: false,
-      elseChildren: [],
     };
 
     expect(evaluateCondition(block, { x: 5 })).toBe(true);

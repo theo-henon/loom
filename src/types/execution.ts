@@ -14,9 +14,7 @@ export type ExecutionFrame = {
   kind: FrameKind;
 };
 
-export type LoopFrame = {
-  remaining: number;
-};
+export type LoopFrame = Record<string, never>;
 
 export type MutexFrame = {
   mutexBlockIndex: number;

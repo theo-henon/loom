@@ -8,6 +8,7 @@ const BLOCK_TYPES: BlockType[] = [
   'variable',
   'operation',
   'condition',
+  'if',
   'loop',
   'mutex',
 ];
@@ -30,7 +31,17 @@ export function BlockPalette() {
           onDragStart={(event) =>
             setBlockTypeDragData(event.dataTransfer, blockType)
           }
-          onClick={() => addBlockToSelectedLane(blockType)}
+          onClick={() => {
+            if (blockType !== 'condition') {
+              addBlockToSelectedLane(blockType);
+            }
+          }}
+          disabled={blockType === 'condition'}
+          title={
+            blockType === 'condition'
+              ? 'Glissez ce bloc dans un Si...Alors ou une Boucle'
+              : undefined
+          }
         >
           <BlockTypeIcon type={blockType} />
           {BLOCK_TYPE_LABELS[blockType]}
