@@ -1,5 +1,9 @@
 import { useProgram } from '../../hooks/useProgram';
-import { BLOCK_HELP_TEXT, BLOCK_TYPE_LABELS, type BlockType } from '../../types/blocks';
+import {
+  BLOCK_HELP_TEXT,
+  BLOCK_TYPE_LABELS,
+  type BlockType,
+} from '../../types/blocks';
 import { BlockTypeLabel } from '../blocks/BlockTypeLabel';
 import { Button } from '../ui/Button';
 import { Tooltip } from '../ui/Tooltip';
