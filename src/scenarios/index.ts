@@ -1,3 +1,4 @@
+import { deadlockFixedScenario } from './deadlockFixed';
 import { deadlockScenario } from './deadlock';
 import { parallelSimpleScenario } from './parallelSimple';
 import { raceConditionFixedScenario } from './raceConditionFixed';
@@ -10,6 +11,7 @@ export const SCENARIOS: Scenario[] = [
   raceConditionScenario,
   raceConditionFixedScenario,
   deadlockScenario,
+  deadlockFixedScenario,
 ];
 
 export function getScenarioById(id: ScenarioId): Scenario | undefined {

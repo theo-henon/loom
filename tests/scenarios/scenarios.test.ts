@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createEngineState, runTick } from '../../src/engine/engine';
+import { deadlockFixedScenario } from '../../src/scenarios/deadlockFixed';
 import { deadlockScenario } from '../../src/scenarios/deadlock';
 import { parallelSimpleScenario } from '../../src/scenarios/parallelSimple';
 import { raceConditionFixedScenario } from '../../src/scenarios/raceConditionFixed';
@@ -7,9 +8,10 @@ import { raceConditionScenario } from '../../src/scenarios/raceCondition';
 import { SCENARIOS, getScenarioById } from '../../src/scenarios';
 
 describe('scenarios', () => {
-  it('exposes four built-in scenarios', () => {
-    expect(SCENARIOS).toHaveLength(4);
+  it('exposes five built-in scenarios', () => {
+    expect(SCENARIOS).toHaveLength(5);
     expect(getScenarioById('deadlock')?.title).toBe('Deadlock');
+    expect(getScenarioById('deadlock-fixed')?.title).toBe('Deadlock corrigé');
     expect(getScenarioById('race-condition-fixed')?.title).toBe(
       'Race condition corrigée',
     );
@@ -72,5 +74,24 @@ describe('scenarios', () => {
     expect(state.threads[lanes[0].id].status).toBe('blocked');
     expect(state.threads[lanes[1].id].status).toBe('blocked');
     expect(state.phase).not.toBe('finished');
+  });
+
+  it('deadlock-fixed finishes when both threads lock in the same order', () => {
+    const { lanes } = deadlockFixedScenario;
+    let state = createEngineState(lanes);
+
+    for (let tick = 0; tick < 50; tick += 1) {
+      state = runTick(state, lanes);
+      if (state.phase === 'finished') {
+        break;
+      }
+    }
+
+    expect(state.variables.lockA).toBe(1);
+    expect(state.variables.lockB).toBe(1);
+    expect(state.variables.etapes).toBe(2);
+    expect(state.threads[lanes[0].id].status).toBe('done');
+    expect(state.threads[lanes[1].id].status).toBe('done');
+    expect(state.phase).toBe('finished');
   });
 });
