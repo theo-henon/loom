@@ -14,12 +14,13 @@ export function ProgramProvider({ children }: { children: ReactNode }) {
     renameLane: (laneId, name) =>
       dispatch({ type: 'RENAME_LANE', laneId, name }),
     selectLane: (laneId) => dispatch({ type: 'SELECT_LANE', laneId }),
-    addBlock: (laneId, blockType, parentBlockId = null, index) =>
+    addBlock: (laneId, blockType, parentBlockId = null, index, parentBranch) =>
       dispatch({
         type: 'ADD_BLOCK',
         laneId,
         blockType,
         parentBlockId,
+        parentBranch,
         index,
       }),
     removeBlock: (laneId, blockId) =>
@@ -30,13 +31,21 @@ export function ProgramProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'LOAD_SCENARIO', lanes, scenarioId }),
     reorderLanes: (fromIndex, toIndex) =>
       dispatch({ type: 'REORDER_LANES', fromIndex, toIndex }),
-    moveBlock: (blockId, fromLaneId, toLaneId, toParentBlockId, toIndex) =>
+    moveBlock: (
+      blockId,
+      fromLaneId,
+      toLaneId,
+      toParentBlockId,
+      toIndex,
+      toParentBranch,
+    ) =>
       dispatch({
         type: 'MOVE_BLOCK',
         blockId,
         fromLaneId,
         toLaneId,
         toParentBlockId,
+        toParentBranch,
         toIndex,
       }),
     addBlockToSelectedLane: (blockType: BlockType) => {

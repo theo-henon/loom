@@ -23,6 +23,8 @@ export const deadlockScenario: Scenario = {
             value: 1,
           },
         ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'deadlock-a-check-b',
@@ -38,6 +40,8 @@ export const deadlockScenario: Scenario = {
             value: 1,
           },
         ],
+        hasElse: false,
+        elseChildren: [],
       },
     ]),
     scenarioLane('deadlock-lane-b', 1, 'Thread B', [
@@ -55,6 +59,8 @@ export const deadlockScenario: Scenario = {
             value: 1,
           },
         ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'deadlock-b-check-a',
@@ -70,6 +76,8 @@ export const deadlockScenario: Scenario = {
             value: 1,
           },
         ],
+        hasElse: false,
+        elseChildren: [],
       },
     ]),
   ],

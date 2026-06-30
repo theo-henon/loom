@@ -20,6 +20,8 @@ Condition et Boucle acceptent des blocs **enfants** (`children[]`), visuellement
 - Mutex inchangé (corps = blocs suivants dans le même conteneur)
 - Pas de `else` sur Condition en v1
 
+* Branche `sinon` optionnelle sur Si...Alors (`hasElse` + `elseChildren`)
+
 ## Tech Stack
 
 Voir [docs/project.md](./docs/project.md).

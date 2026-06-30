@@ -18,7 +18,7 @@ describe('BlockPalette', () => {
       screen.getByRole('button', { name: 'Ajouter bloc Opération' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Ajouter bloc Condition' }),
+      screen.getByRole('button', { name: 'Ajouter bloc Si...Alors' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Ajouter bloc Boucle' }),

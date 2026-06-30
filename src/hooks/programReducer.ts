@@ -1,8 +1,10 @@
 import { createBlock, type Block, type BlockType } from '../types/blocks';
 import {
+  getConditionBranchLength,
   insertBlockInTree,
   removeBlockFromTree,
   updateBlockInTree,
+  type ConditionBranch,
 } from '../types/blockTree';
 import { createLane, type Lane } from '../types/lane';
 import type { ScenarioId } from '../scenarios/types';
@@ -23,6 +25,7 @@ export type ProgramAction =
       laneId: string;
       blockType: BlockType;
       parentBlockId?: string | null;
+      parentBranch?: ConditionBranch;
       index?: number;
     }
   | { type: 'REMOVE_BLOCK'; laneId: string; blockId: string }
@@ -39,6 +42,7 @@ export type ProgramAction =
       fromLaneId: string;
       toLaneId: string;
       toParentBlockId: string | null;
+      toParentBranch?: ConditionBranch;
       toIndex: number;
     };
 
@@ -56,20 +60,42 @@ function reorderItems<T>(items: T[], fromIndex: number, toIndex: number): T[] {
 function getChildCountForParent(
   blocks: Block[],
   parentBlockId: string | null,
+  branch: ConditionBranch = 'then',
 ): number {
   if (parentBlockId === null) {
     return blocks.length;
   }
 
   for (const block of blocks) {
-    if (block.id === parentBlockId) {
-      if (block.type === 'condition' || block.type === 'loop') {
-        return block.children.length;
-      }
-      return -1;
+    if (block.id === parentBlockId && block.type === 'condition') {
+      return getConditionBranchLength(block, branch);
     }
-    if (block.type === 'condition' || block.type === 'loop') {
-      const nested = getChildCountForParent(block.children, parentBlockId);
+    if (block.id === parentBlockId && block.type === 'loop') {
+      return block.children.length;
+    }
+    if (block.type === 'condition') {
+      const nested = getChildCountForParent(
+        block.children,
+        parentBlockId,
+        branch,
+      );
+      if (nested !== -1) {
+        return nested;
+      }
+      const nestedElse = getChildCountForParent(
+        block.elseChildren,
+        parentBlockId,
+        branch,
+      );
+      if (nestedElse !== -1) {
+        return nestedElse;
+      }
+    } else if (block.type === 'loop') {
+      const nested = getChildCountForParent(
+        block.children,
+        parentBlockId,
+        branch,
+      );
       if (nested !== -1) {
         return nested;
       }
@@ -124,7 +150,12 @@ export function programReducer(
           }
 
           const parentBlockId = action.parentBlockId ?? null;
-          const childCount = getChildCountForParent(lane.blocks, parentBlockId);
+          const branch = action.parentBranch ?? 'then';
+          const childCount = getChildCountForParent(
+            lane.blocks,
+            parentBlockId,
+            branch,
+          );
           if (childCount === -1) {
             return lane;
           }
@@ -138,6 +169,7 @@ export function programReducer(
               parentBlockId,
               insertAt,
               createBlock(action.blockType),
+              branch,
             ),
           };
         }),
@@ -218,6 +250,7 @@ export function programReducer(
               action.toParentBlockId,
               action.toIndex,
               removed,
+              action.toParentBranch ?? 'then',
             ),
           };
         }),

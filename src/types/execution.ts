@@ -5,7 +5,8 @@ export type ThreadStatus = 'idle' | 'running' | 'blocked' | 'done';
 
 export type EnginePhase = 'idle' | 'running' | 'paused' | 'finished';
 
-export type FrameKind = 'root' | 'loop-body' | 'condition-body';
+export type FrameKind =
+  'root' | 'loop-body' | 'condition-body' | 'condition-else-body';
 
 export type ExecutionFrame = {
   blocks: Block[];

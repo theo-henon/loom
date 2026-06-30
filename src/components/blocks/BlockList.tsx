@@ -1,4 +1,5 @@
 import type { Block } from '../../types/blocks';
+import type { ConditionBranch } from '../../types/blockTree';
 import type { ThreadStatus } from '../../types/execution';
 import { useProgram } from '../../hooks/useProgram';
 import { parseBlockDragData, parseDroppedBlockType } from '../palette/drag';
@@ -8,6 +9,7 @@ type BlockListProps = {
   laneId: string;
   blocks: Block[];
   parentBlockId: string | null;
+  parentBranch?: ConditionBranch;
   activeBlockId: string | null;
   threadColor: string;
   threadStatus: ThreadStatus;
@@ -20,6 +22,7 @@ export function BlockList({
   laneId,
   blocks,
   parentBlockId,
+  parentBranch = 'then',
   activeBlockId,
   threadColor,
   threadStatus,
@@ -38,7 +41,7 @@ export function BlockList({
 
     const blockType = parseDroppedBlockType(event.dataTransfer);
     if (blockType) {
-      addBlock(laneId, blockType, parentBlockId, index);
+      addBlock(laneId, blockType, parentBlockId, index, parentBranch);
       return;
     }
 
@@ -50,6 +53,7 @@ export function BlockList({
         laneId,
         parentBlockId,
         index,
+        parentBranch,
       );
     }
   };

@@ -98,6 +98,49 @@ describe('engine', () => {
     expect(state.threads[lane.id].status).toBe('done');
   });
 
+  it('executes else branch when condition is false and hasElse is enabled', () => {
+    const lane = {
+      ...createLane(1),
+      blocks: [
+        { ...createBlock('variable'), name: 'x', value: 0 },
+        {
+          ...createBlock('condition'),
+          variable: 'x',
+          comparator: '==',
+          value: 1,
+          hasElse: true,
+          children: [
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 10,
+            },
+          ],
+          elseChildren: [
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 1,
+            },
+          ],
+        },
+      ],
+    };
+
+    let state = createEngineState([lane]);
+    state = runTick(state, [lane]);
+    expect(state.variables.x).toBe(0);
+
+    state = runTick(state, [lane]);
+    expect(state.variables.x).toBe(0);
+
+    state = runTick(state, [lane]);
+    expect(state.variables.x).toBe(1);
+    expect(state.threads[lane.id].status).toBe('done');
+  });
+
   it('blocks a thread when a mutex is already held', () => {
     const lane1 = {
       ...createLane(1),

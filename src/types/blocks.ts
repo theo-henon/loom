@@ -27,6 +27,8 @@ export type ConditionBlockData = BlockBase & {
   comparator: Comparator;
   value: number;
   children: Block[];
+  hasElse: boolean;
+  elseChildren: Block[];
 };
 
 export type LoopBlockData = BlockBase & {
@@ -50,7 +52,7 @@ export type Block =
 export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   variable: 'Variable',
   operation: 'Opération',
-  condition: 'Condition',
+  condition: 'Si...Alors',
   loop: 'Boucle',
   mutex: 'Mutex',
 };
@@ -77,6 +79,8 @@ export function createBlock(type: BlockType): Block {
         comparator: '==',
         value: 0,
         children: [],
+        hasElse: false,
+        elseChildren: [],
       };
     case 'loop':
       return { id, type, iterations: 3, children: [] };

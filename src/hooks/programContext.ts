@@ -1,4 +1,5 @@
 import { createContext, type Dispatch } from 'react';
+import type { ConditionBranch } from '../types/blockTree';
 import type { Block, BlockType } from '../types/blocks';
 import type { Lane } from '../types/lane';
 import type { ScenarioId } from '../scenarios/types';
@@ -16,6 +17,7 @@ export type ProgramContextValue = {
     blockType: BlockType,
     parentBlockId?: string | null,
     index?: number,
+    parentBranch?: ConditionBranch,
   ) => void;
   removeBlock: (laneId: string, blockId: string) => void;
   updateBlock: (laneId: string, block: Block) => void;
@@ -28,6 +30,7 @@ export type ProgramContextValue = {
     toLaneId: string,
     toParentBlockId: string | null,
     toIndex: number,
+    toParentBranch?: ConditionBranch,
   ) => void;
 };
 

@@ -29,6 +29,8 @@ export const deadlockFixedScenario: Scenario = {
             value: 1,
           },
         ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'fixed-deadlock-a-check-b',
@@ -44,6 +46,8 @@ export const deadlockFixedScenario: Scenario = {
             value: 1,
           },
         ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'fixed-deadlock-a-step',
@@ -68,6 +72,8 @@ export const deadlockFixedScenario: Scenario = {
             value: 1,
           },
         ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'fixed-deadlock-b-check-b',
@@ -83,6 +89,8 @@ export const deadlockFixedScenario: Scenario = {
             value: 1,
           },
         ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'fixed-deadlock-b-step',

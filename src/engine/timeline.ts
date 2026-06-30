@@ -129,6 +129,9 @@ function findBlockById(
       if (nested) {
         return nested;
       }
+      if (block.type === 'condition') {
+        return findBlockById(block.elseChildren, blockId);
+      }
     }
   }
   return undefined;

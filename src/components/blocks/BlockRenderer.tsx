@@ -1,6 +1,5 @@
 import type { CSSProperties } from 'react';
 import type { Block } from '../../types/blocks';
-import { blockHasChildren } from '../../types/blockTree';
 import type { ThreadStatus } from '../../types/execution';
 import { setBlockDragData } from '../palette/drag';
 import { RemoveButton } from '../ui/RemoveButton';
@@ -89,9 +88,14 @@ export function BlockRenderer({
       {block.type === 'operation' && (
         <OperationBlock block={block} onChange={onChange} />
       )}
-      {block.type === 'condition' && (
-        <ConditionBlock block={block} onChange={onChange} />
-      )}
+      {block.type === 'condition' && nestedListProps ? (
+        <ConditionBlock
+          block={block}
+          onChange={onChange}
+          laneId={laneId}
+          nestedListProps={nestedListProps}
+        />
+      ) : null}
       {block.type === 'loop' && <LoopBlock block={block} onChange={onChange} />}
       {block.type === 'mutex' && (
         <MutexBlock
@@ -100,9 +104,9 @@ export function BlockRenderer({
           ownerLabel={mutexOwnerLabel}
         />
       )}
-      {blockHasChildren(block) && nestedListProps ? (
+      {block.type === 'loop' && nestedListProps ? (
         <div className="mt-3">
-          <p className="mb-2 text-xs font-medium text-gray-500">Alors</p>
+          <p className="mb-2 text-xs font-medium text-gray-500">Corps</p>
           <BlockList
             laneId={laneId}
             blocks={block.children}
