@@ -14,8 +14,8 @@ import {
   parseLaneDragData,
   setLaneDragData,
 } from '../palette/drag';
-import { RemoveButton } from '../ui/RemoveButton';
 import { ResizeHandle } from '../layout/ResizeHandle';
+import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
 
 type LaneProps = {

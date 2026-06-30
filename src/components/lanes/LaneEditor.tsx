@@ -1,29 +1,19 @@
-import { useEditorLayout } from '../../hooks/editorLayoutContext';
 import { useProgram } from '../../hooks/useProgram';
 import { Button } from '../ui/Button';
 import { Lane } from './Lane';
 
 export function LaneEditor() {
   const { state, addLane } = useProgram();
-  const { saveLayout, restoreDefaultLayout, layoutSaved } = useEditorLayout();
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2">
+      <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
         <p className="text-sm text-gray-500" aria-label="Nombre de lanes">
           {state.lanes.length} lane{state.lanes.length > 1 ? 's' : ''}
         </p>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="secondary" onClick={saveLayout}>
-            {layoutSaved ? 'Layout sauvegardé' : 'Sauvegarder layout'}
-          </Button>
-          <Button variant="ghost" onClick={restoreDefaultLayout}>
-            Layout par défaut
-          </Button>
-          <Button variant="primary" onClick={addLane}>
-            + Ajouter une lane
-          </Button>
-        </div>
+        <Button variant="primary" onClick={addLane}>
+          + Ajouter une lane
+        </Button>
       </div>
 
       {state.lanes.length === 0 ? (

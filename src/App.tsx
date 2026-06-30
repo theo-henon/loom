@@ -8,6 +8,7 @@ import {
 } from './hooks/useExecution';
 import { useProgram } from './hooks/useProgram';
 import { MainWorkspaceLayout } from './components/layout/MainWorkspaceLayout';
+import { LayoutControls } from './components/layout/LayoutControls';
 import { ExecutionControls } from './components/execution/ExecutionControls';
 import { ScenarioWelcome } from './components/scenarios/ScenarioWelcome';
 import { ScenarioPickerModal } from './components/scenarios/ScenarioPickerModal';
@@ -39,6 +40,7 @@ function AppContent() {
           >
             Charger un scénario
           </Button>
+          <LayoutControls />
           <ExecutionControls />
         </div>
       </header>
