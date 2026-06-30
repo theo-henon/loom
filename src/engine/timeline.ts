@@ -2,9 +2,9 @@ import { BLOCK_TYPE_LABELS } from '../types/blocks';
 import type { Lane } from '../types/lane';
 import type { ThreadState } from '../types/execution';
 import type { TimelineSegment } from '../types/timeline';
+import { getActiveBlockIdFromThread } from './activeBlock';
 
 function getExecutedBlockId(
-  lane: Lane,
   before: ThreadState,
   after: ThreadState,
 ): string | null {
@@ -12,20 +12,23 @@ function getExecutedBlockId(
     return null;
   }
 
+  const beforeId = getActiveBlockIdFromThread(before);
+  const afterId = getActiveBlockIdFromThread(after);
+
   if (before.status === 'blocked') {
-    if (after.status === 'running' && after.pc > before.pc) {
-      return lane.blocks[before.pc]?.id ?? null;
+    if (after.status === 'running' && afterId !== beforeId) {
+      return beforeId;
     }
     return null;
   }
 
   if (before.status === 'idle' || before.status === 'running') {
-    if (after.status === 'blocked' && after.pc === before.pc) {
-      return lane.blocks[before.pc]?.id ?? null;
+    if (after.status === 'blocked' && afterId === beforeId) {
+      return beforeId;
     }
 
-    if (after.pc !== before.pc) {
-      return lane.blocks[before.pc]?.id ?? null;
+    if (afterId !== beforeId) {
+      return beforeId;
     }
   }
 
@@ -33,11 +36,10 @@ function getExecutedBlockId(
 }
 
 function getTimelineBlockId(
-  lane: Lane,
   before: ThreadState,
   after: ThreadState,
 ): string | null {
-  const executed = getExecutedBlockId(lane, before, after);
+  const executed = getExecutedBlockId(before, after);
   if (executed) {
     return executed;
   }
@@ -45,9 +47,9 @@ function getTimelineBlockId(
   if (
     before.status === 'blocked' &&
     after.status === 'blocked' &&
-    before.pc === after.pc
+    getActiveBlockIdFromThread(before) === getActiveBlockIdFromThread(after)
   ) {
-    return lane.blocks[before.pc]?.id ?? null;
+    return getActiveBlockIdFromThread(before);
   }
 
   return null;
@@ -90,20 +92,18 @@ export function appendTimelineForTick(
       continue;
     }
 
-    const blockId = getTimelineBlockId(lane, before, after);
+    const blockId = getTimelineBlockId(before, after);
     if (!blockId) {
       continue;
     }
 
-    const block = lane.blocks.find((entry) => entry.id === blockId);
-    if (!block) {
-      continue;
-    }
+    const block = findBlockById(lane.blocks, blockId);
+    const blockType = block?.type ?? 'variable';
 
     nextTimeline = appendSegment(nextTimeline, {
       laneId: lane.id,
       blockId,
-      blockLabel: BLOCK_TYPE_LABELS[block.type],
+      blockLabel: BLOCK_TYPE_LABELS[blockType],
       startTick: tick,
       endTick: tick + 1,
     });
@@ -115,3 +115,21 @@ export function appendTimelineForTick(
 export const TIMELINE_TICK_WIDTH = 28;
 export const TIMELINE_ROW_HEIGHT = 28;
 export const TIMELINE_LABEL_WIDTH = 72;
+
+function findBlockById(
+  blocks: Lane['blocks'],
+  blockId: string,
+): Lane['blocks'][number] | undefined {
+  for (const block of blocks) {
+    if (block.id === blockId) {
+      return block;
+    }
+    if (block.type === 'condition' || block.type === 'loop') {
+      const nested = findBlockById(block.children, blockId);
+      if (nested) {
+        return nested;
+      }
+    }
+  }
+  return undefined;
+}

@@ -8,13 +8,8 @@ import { useProgram } from '../../hooks/useProgram';
 import { getLaneWidth } from '../../types/editorLayout';
 import type { Lane as LaneData } from '../../types/lane';
 import type { ThreadStatus } from '../../types/execution';
-import { BlockRenderer } from '../blocks/BlockRenderer';
-import {
-  parseBlockDragData,
-  parseDroppedBlockType,
-  parseLaneDragData,
-  setLaneDragData,
-} from '../palette/drag';
+import { BlockList } from '../blocks/BlockList';
+import { parseLaneDragData, setLaneDragData } from '../palette/drag';
 import { ResizeHandle } from '../layout/ResizeHandle';
 import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
@@ -38,11 +33,7 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
     selectLane,
     renameLane,
     removeLane,
-    addBlock,
-    updateBlock,
-    removeBlock,
     reorderLanes,
-    moveBlock,
   } = useProgram();
   const { layout, adjustLaneWidth } = useEditorLayout();
   const { state: engineState, isRunning } = useExecution();
@@ -71,40 +62,6 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
     );
   };
 
-  const handlePaletteDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const blockType = parseDroppedBlockType(event.dataTransfer);
-    if (blockType) {
-      addBlock(lane.id, blockType);
-      return;
-    }
-
-    const blockDrag = parseBlockDragData(event.dataTransfer);
-    if (blockDrag) {
-      moveBlock(
-        blockDrag.blockId,
-        blockDrag.laneId,
-        lane.id,
-        lane.blocks.length,
-      );
-    }
-  };
-
-  const handleBlockDrop = (
-    event: React.DragEvent<HTMLDivElement>,
-    toIndex: number,
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const blockDrag = parseBlockDragData(event.dataTransfer);
-    if (blockDrag) {
-      moveBlock(blockDrag.blockId, blockDrag.laneId, lane.id, toIndex);
-    }
-  };
-
   const handleLaneHeaderDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -122,6 +79,14 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
     }
 
     reorderLanes(fromIndex, laneIndex);
+  };
+
+  const nestedListProps = {
+    activeBlockId,
+    threadColor: lane.color,
+    threadStatus,
+    isRunning,
+    getMutexOwnerLabel,
   };
 
   return (
@@ -176,38 +141,14 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
         </span>
       </header>
 
-      <div
-        className="flex flex-1 flex-col gap-3 overflow-y-auto p-3"
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={handlePaletteDrop}
-      >
-        {lane.blocks.length === 0 ? (
-          <p className="text-center text-xs text-gray-400">
-            Déposez ou ajoutez des blocs ici.
-          </p>
-        ) : (
-          lane.blocks.map((block, blockIndex) => (
-            <div
-              key={block.id}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={(event) => handleBlockDrop(event, blockIndex)}
-            >
-              <BlockRenderer
-                block={block}
-                laneId={lane.id}
-                onChange={(updated) => updateBlock(lane.id, updated)}
-                onRemove={() => removeBlock(lane.id, block.id)}
-                isActive={activeBlockId === block.id}
-                threadColor={lane.color}
-                threadStatus={threadStatus}
-                draggable={!isRunning}
-                mutexOwnerLabel={
-                  block.type === 'mutex' ? getMutexOwnerLabel(block.name) : null
-                }
-              />
-            </div>
-          ))
-        )}
+      <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3">
+        <BlockList
+          laneId={lane.id}
+          blocks={lane.blocks}
+          parentBlockId={null}
+          emptyLabel="Déposez ou ajoutez des blocs ici."
+          {...nestedListProps}
+        />
       </div>
 
       <div className="absolute bottom-0 right-0 top-0 flex w-2 translate-x-1/2 items-stretch">

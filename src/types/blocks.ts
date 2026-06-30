@@ -26,11 +26,13 @@ export type ConditionBlockData = BlockBase & {
   variable: string;
   comparator: Comparator;
   value: number;
+  children: Block[];
 };
 
 export type LoopBlockData = BlockBase & {
   type: 'loop';
   iterations: number;
+  children: Block[];
 };
 
 export type MutexBlockData = BlockBase & {
@@ -74,9 +76,10 @@ export function createBlock(type: BlockType): Block {
         variable: 'x',
         comparator: '==',
         value: 0,
+        children: [],
       };
     case 'loop':
-      return { id, type, iterations: 3 };
+      return { id, type, iterations: 3, children: [] };
     case 'mutex':
       return { id, type, name: 'verrou' };
   }

@@ -96,6 +96,7 @@ describe('programReducer', () => {
       blockId: 'b1',
       fromLaneId: laneA.id,
       toLaneId: laneB.id,
+      toParentBlockId: null,
       toIndex: 0,
     });
 

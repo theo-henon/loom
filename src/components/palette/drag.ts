@@ -4,7 +4,13 @@ export const LOOM_BLOCK_TYPE_MIME = 'application/loom-block-type';
 export const LOOM_BLOCK_MIME = 'application/loom-block';
 export const LOOM_LANE_MIME = 'application/loom-lane';
 
-const BLOCK_TYPES: BlockType[] = ['variable', 'operation', 'condition', 'loop'];
+const BLOCK_TYPES: BlockType[] = [
+  'variable',
+  'operation',
+  'condition',
+  'loop',
+  'mutex',
+];
 
 export type BlockDragPayload = {
   blockId: string;

@@ -21,12 +21,14 @@ export const deadlockFixedScenario: Scenario = {
         variable: 'lockA',
         comparator: '==',
         value: 0,
-      },
-      {
-        id: 'fixed-deadlock-a-acquire-a',
-        type: 'variable',
-        name: 'lockA',
-        value: 1,
+        children: [
+          {
+            id: 'fixed-deadlock-a-acquire-a',
+            type: 'variable',
+            name: 'lockA',
+            value: 1,
+          },
+        ],
       },
       {
         id: 'fixed-deadlock-a-check-b',
@@ -34,12 +36,14 @@ export const deadlockFixedScenario: Scenario = {
         variable: 'lockB',
         comparator: '==',
         value: 0,
-      },
-      {
-        id: 'fixed-deadlock-a-acquire-b',
-        type: 'variable',
-        name: 'lockB',
-        value: 1,
+        children: [
+          {
+            id: 'fixed-deadlock-a-acquire-b',
+            type: 'variable',
+            name: 'lockB',
+            value: 1,
+          },
+        ],
       },
       {
         id: 'fixed-deadlock-a-step',
@@ -56,12 +60,14 @@ export const deadlockFixedScenario: Scenario = {
         variable: 'lockA',
         comparator: '==',
         value: 0,
-      },
-      {
-        id: 'fixed-deadlock-b-acquire-a',
-        type: 'variable',
-        name: 'lockA',
-        value: 1,
+        children: [
+          {
+            id: 'fixed-deadlock-b-acquire-a',
+            type: 'variable',
+            name: 'lockA',
+            value: 1,
+          },
+        ],
       },
       {
         id: 'fixed-deadlock-b-check-b',
@@ -69,12 +75,14 @@ export const deadlockFixedScenario: Scenario = {
         variable: 'lockB',
         comparator: '==',
         value: 0,
-      },
-      {
-        id: 'fixed-deadlock-b-acquire-b',
-        type: 'variable',
-        name: 'lockB',
-        value: 1,
+        children: [
+          {
+            id: 'fixed-deadlock-b-acquire-b',
+            type: 'variable',
+            name: 'lockB',
+            value: 1,
+          },
+        ],
       },
       {
         id: 'fixed-deadlock-b-step',

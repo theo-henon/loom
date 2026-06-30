@@ -1,4 +1,9 @@
 import { createBlock, type Block, type BlockType } from '../types/blocks';
+import {
+  insertBlockInTree,
+  removeBlockFromTree,
+  updateBlockInTree,
+} from '../types/blockTree';
 import { createLane, type Lane } from '../types/lane';
 import type { ScenarioId } from '../scenarios/types';
 
@@ -13,7 +18,13 @@ export type ProgramAction =
   | { type: 'REMOVE_LANE'; laneId: string }
   | { type: 'RENAME_LANE'; laneId: string; name: string }
   | { type: 'SELECT_LANE'; laneId: string | null }
-  | { type: 'ADD_BLOCK'; laneId: string; blockType: BlockType }
+  | {
+      type: 'ADD_BLOCK';
+      laneId: string;
+      blockType: BlockType;
+      parentBlockId?: string | null;
+      index?: number;
+    }
   | { type: 'REMOVE_BLOCK'; laneId: string; blockId: string }
   | { type: 'UPDATE_BLOCK'; laneId: string; block: Block }
   | {
@@ -27,6 +38,7 @@ export type ProgramAction =
       blockId: string;
       fromLaneId: string;
       toLaneId: string;
+      toParentBlockId: string | null;
       toIndex: number;
     };
 
@@ -39,6 +51,32 @@ function reorderItems<T>(items: T[], fromIndex: number, toIndex: number): T[] {
   const [item] = next.splice(fromIndex, 1);
   next.splice(toIndex, 0, item);
   return next;
+}
+
+function getChildCountForParent(
+  blocks: Block[],
+  parentBlockId: string | null,
+): number {
+  if (parentBlockId === null) {
+    return blocks.length;
+  }
+
+  for (const block of blocks) {
+    if (block.id === parentBlockId) {
+      if (block.type === 'condition' || block.type === 'loop') {
+        return block.children.length;
+      }
+      return -1;
+    }
+    if (block.type === 'condition' || block.type === 'loop') {
+      const nested = getChildCountForParent(block.children, parentBlockId);
+      if (nested !== -1) {
+        return nested;
+      }
+    }
+  }
+
+  return -1;
 }
 
 export const initialProgramState: ProgramState = {
@@ -80,14 +118,29 @@ export function programReducer(
     case 'ADD_BLOCK':
       return {
         ...state,
-        lanes: state.lanes.map((lane) =>
-          lane.id === action.laneId
-            ? {
-                ...lane,
-                blocks: [...lane.blocks, createBlock(action.blockType)],
-              }
-            : lane,
-        ),
+        lanes: state.lanes.map((lane) => {
+          if (lane.id !== action.laneId) {
+            return lane;
+          }
+
+          const parentBlockId = action.parentBlockId ?? null;
+          const childCount = getChildCountForParent(lane.blocks, parentBlockId);
+          if (childCount === -1) {
+            return lane;
+          }
+
+          const insertAt = action.index ?? childCount;
+
+          return {
+            ...lane,
+            blocks: insertBlockInTree(
+              lane.blocks,
+              parentBlockId,
+              insertAt,
+              createBlock(action.blockType),
+            ),
+          };
+        }),
         selectedLaneId: action.laneId,
       };
     case 'REMOVE_BLOCK':
@@ -97,9 +150,7 @@ export function programReducer(
           lane.id === action.laneId
             ? {
                 ...lane,
-                blocks: lane.blocks.filter(
-                  (block) => block.id !== action.blockId,
-                ),
+                blocks: removeBlockFromTree(lane.blocks, action.blockId).blocks,
               }
             : lane,
         ),
@@ -111,8 +162,10 @@ export function programReducer(
           lane.id === action.laneId
             ? {
                 ...lane,
-                blocks: lane.blocks.map((block) =>
-                  block.id === action.block.id ? action.block : block,
+                blocks: updateBlockInTree(
+                  lane.blocks,
+                  action.block.id,
+                  () => action.block,
                 ),
               }
             : lane,
@@ -137,22 +190,17 @@ export function programReducer(
         return state;
       }
 
-      const fromIndex = fromLane.blocks.findIndex(
-        (block) => block.id === action.blockId,
+      const { blocks: withoutBlock, removed } = removeBlockFromTree(
+        fromLane.blocks,
+        action.blockId,
       );
-      if (fromIndex === -1) {
+      if (!removed) {
         return state;
       }
 
-      const block = fromLane.blocks[fromIndex];
       const lanesWithoutBlock = state.lanes.map((lane) =>
         lane.id === action.fromLaneId
-          ? {
-              ...lane,
-              blocks: lane.blocks.filter(
-                (entry) => entry.id !== action.blockId,
-              ),
-            }
+          ? { ...lane, blocks: withoutBlock }
           : lane,
       );
 
@@ -163,17 +211,15 @@ export function programReducer(
             return lane;
           }
 
-          const blocks = [...lane.blocks];
-          let insertIndex = action.toIndex;
-          if (
-            action.fromLaneId === action.toLaneId &&
-            fromIndex < insertIndex
-          ) {
-            insertIndex -= 1;
-          }
-          insertIndex = Math.max(0, Math.min(insertIndex, blocks.length));
-          blocks.splice(insertIndex, 0, block);
-          return { ...lane, blocks };
+          return {
+            ...lane,
+            blocks: insertBlockInTree(
+              lane.blocks,
+              action.toParentBlockId,
+              action.toIndex,
+              removed,
+            ),
+          };
         }),
         selectedLaneId: action.toLaneId,
       };

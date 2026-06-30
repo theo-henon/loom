@@ -12,6 +12,9 @@ export function ConditionBlock({ block, onChange }: ConditionBlockProps) {
   return (
     <div className="space-y-2 text-sm">
       <BlockTypeLabel type="condition" />
+      <p className="text-xs text-gray-400">
+        Les blocs à l&apos;intérieur s&apos;exécutent si la condition est vraie.
+      </p>
       <label className="flex flex-col gap-1">
         <span className="text-xs text-gray-500">Variable</span>
         <input

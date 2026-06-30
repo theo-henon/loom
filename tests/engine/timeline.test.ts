@@ -84,9 +84,10 @@ describe('timeline', () => {
     };
     const blockedThread: ThreadState = {
       laneId: lane.id,
-      pc: 0,
       status: 'blocked',
+      frames: [{ blocks: lane.blocks, pc: 0, kind: 'root' }],
       loopStack: [],
+      mutexStack: [],
     };
 
     const first = appendTimelineForTick(

@@ -1,9 +1,11 @@
 import type { CSSProperties } from 'react';
 import type { Block } from '../../types/blocks';
+import { blockHasChildren } from '../../types/blockTree';
 import type { ThreadStatus } from '../../types/execution';
 import { setBlockDragData } from '../palette/drag';
 import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
+import { BlockList, type NestedBlockListProps } from './BlockList';
 import { ConditionBlock } from './ConditionBlock';
 import { LoopBlock } from './LoopBlock';
 import { MutexBlock } from './MutexBlock';
@@ -20,6 +22,7 @@ type BlockRendererProps = {
   threadStatus?: ThreadStatus;
   draggable?: boolean;
   mutexOwnerLabel?: string | null;
+  nestedListProps?: NestedBlockListProps;
 };
 
 export function BlockRenderer({
@@ -32,11 +35,18 @@ export function BlockRenderer({
   threadStatus = 'idle',
   draggable = true,
   mutexOwnerLabel = null,
+  nestedListProps,
 }: BlockRendererProps) {
   return (
     <div
       className={`relative rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow duration-300 ${
         isActive && threadColor ? 'shadow-md' : ''
+      } ${
+        block.type === 'condition'
+          ? 'border-l-4 border-l-amber-200'
+          : block.type === 'loop'
+            ? 'border-l-4 border-l-violet-200'
+            : ''
       }`}
       style={
         isActive && threadColor
@@ -90,6 +100,17 @@ export function BlockRenderer({
           ownerLabel={mutexOwnerLabel}
         />
       )}
+      {blockHasChildren(block) && nestedListProps ? (
+        <div className="mt-3">
+          <p className="mb-2 text-xs font-medium text-gray-500">Alors</p>
+          <BlockList
+            laneId={laneId}
+            blocks={block.children}
+            parentBlockId={block.id}
+            {...nestedListProps}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

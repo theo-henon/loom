@@ -61,7 +61,7 @@ describe('engine', () => {
 
     state = runTick(state, [lane]);
     expect(state.threads[lane.id].status).toBe('blocked');
-    expect(state.threads[lane.id].pc).toBe(1);
+    expect(state.threads[lane.id].frames[0].pc).toBe(1);
   });
 
   it('repeats loop body the requested number of times', () => {
@@ -69,12 +69,17 @@ describe('engine', () => {
       ...createLane(1),
       blocks: [
         { ...createBlock('variable'), name: 'x', value: 0 },
-        { ...createBlock('loop'), iterations: 2 },
         {
-          ...createBlock('operation'),
-          targetVariable: 'x',
-          operator: '+',
-          operand: 1,
+          ...createBlock('loop'),
+          iterations: 2,
+          children: [
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 1,
+            },
+          ],
         },
       ],
     };
@@ -133,13 +138,18 @@ describe('engine', () => {
       ...createLane(1),
       blocks: [
         { ...createBlock('variable'), name: 'x', value: 0 },
-        { ...createBlock('loop'), iterations: 2 },
-        { ...createBlock('mutex'), name: 'm' },
         {
-          ...createBlock('operation'),
-          targetVariable: 'x',
-          operator: '+',
-          operand: 1,
+          ...createBlock('loop'),
+          iterations: 2,
+          children: [
+            { ...createBlock('mutex'), name: 'm' },
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 1,
+            },
+          ],
         },
       ],
     };
@@ -147,13 +157,18 @@ describe('engine', () => {
     const lane2 = {
       ...createLane(2),
       blocks: [
-        { ...createBlock('loop'), iterations: 2 },
-        { ...createBlock('mutex'), name: 'm' },
         {
-          ...createBlock('operation'),
-          targetVariable: 'x',
-          operator: '+',
-          operand: 1,
+          ...createBlock('loop'),
+          iterations: 2,
+          children: [
+            { ...createBlock('mutex'), name: 'm' },
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 1,
+            },
+          ],
         },
       ],
     };
