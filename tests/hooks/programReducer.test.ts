@@ -70,4 +70,37 @@ describe('programReducer', () => {
     expect(next.activeScenarioId).toBe('deadlock');
     expect(next.selectedLaneId).toBe(scenarioLanes[0].id);
   });
+
+  it('reorders lanes', () => {
+    const laneA = { ...initialProgramState.lanes[0], name: 'A' };
+    const laneB = { ...initialProgramState.lanes[1], name: 'B' };
+    const state = { ...initialProgramState, lanes: [laneA, laneB] };
+
+    const next = programReducer(state, {
+      type: 'REORDER_LANES',
+      fromIndex: 0,
+      toIndex: 1,
+    });
+
+    expect(next.lanes.map((lane) => lane.name)).toEqual(['B', 'A']);
+  });
+
+  it('moves a block to another lane', () => {
+    const block = { id: 'b1', type: 'variable' as const, name: 'x', value: 0 };
+    const laneA = { ...initialProgramState.lanes[0], blocks: [block] };
+    const laneB = { ...initialProgramState.lanes[1], blocks: [] };
+    const state = { ...initialProgramState, lanes: [laneA, laneB] };
+
+    const next = programReducer(state, {
+      type: 'MOVE_BLOCK',
+      blockId: 'b1',
+      fromLaneId: laneA.id,
+      toLaneId: laneB.id,
+      toIndex: 0,
+    });
+
+    expect(next.lanes[0].blocks).toHaveLength(0);
+    expect(next.lanes[1].blocks).toHaveLength(1);
+    expect(next.lanes[1].blocks[0].id).toBe('b1');
+  });
 });

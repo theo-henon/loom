@@ -16,6 +16,13 @@ export type ProgramContextValue = {
   updateBlock: (laneId: string, block: Block) => void;
   addBlockToSelectedLane: (blockType: BlockType) => void;
   loadScenario: (lanes: Lane[], scenarioId: ScenarioId | null) => void;
+  reorderLanes: (fromIndex: number, toIndex: number) => void;
+  moveBlock: (
+    blockId: string,
+    fromLaneId: string,
+    toLaneId: string,
+    toIndex: number,
+  ) => void;
 };
 
 export const ProgramContext = createContext<ProgramContextValue | null>(null);

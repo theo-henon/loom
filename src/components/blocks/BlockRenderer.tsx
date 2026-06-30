@@ -1,7 +1,8 @@
 import type { CSSProperties } from 'react';
 import type { Block } from '../../types/blocks';
 import type { ThreadStatus } from '../../types/execution';
-import { Button } from '../ui/Button';
+import { setBlockDragData } from '../palette/drag';
+import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
 import { ConditionBlock } from './ConditionBlock';
 import { LoopBlock } from './LoopBlock';
@@ -10,20 +11,24 @@ import { VariableBlock } from './VariableBlock';
 
 type BlockRendererProps = {
   block: Block;
+  laneId: string;
   onChange: (block: Block) => void;
   onRemove: () => void;
   isActive?: boolean;
   threadColor?: string;
   threadStatus?: ThreadStatus;
+  draggable?: boolean;
 };
 
 export function BlockRenderer({
   block,
+  laneId,
   onChange,
   onRemove,
   isActive = false,
   threadColor,
   threadStatus = 'idle',
+  draggable = true,
 }: BlockRendererProps) {
   return (
     <div
@@ -47,10 +52,23 @@ export function BlockRenderer({
           />
         </div>
       )}
-      <div className="mb-2 flex justify-end">
-        <Button variant="ghost" className="text-xs" onClick={onRemove}>
-          Supprimer
-        </Button>
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <button
+          type="button"
+          className="cursor-grab touch-none rounded px-1 text-xs text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-50"
+          draggable={draggable}
+          disabled={!draggable}
+          aria-label="Déplacer le bloc"
+          onDragStart={(event) => {
+            setBlockDragData(event.dataTransfer, {
+              blockId: block.id,
+              laneId,
+            });
+          }}
+        >
+          ⠿
+        </button>
+        <RemoveButton label="Supprimer le bloc" onClick={onRemove} />
       </div>
       {block.type === 'variable' && (
         <VariableBlock block={block} onChange={onChange} />

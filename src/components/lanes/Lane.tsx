@@ -1,15 +1,25 @@
 import { getActiveBlockId } from '../../engine/engine';
+import { useEditorLayout } from '../../hooks/editorLayoutContext';
 import { useExecution } from '../../hooks/useExecution';
+import { usePointerResize } from '../../hooks/usePointerResize';
 import { useProgram } from '../../hooks/useProgram';
+import { getLaneWidth } from '../../types/editorLayout';
 import type { Lane as LaneData } from '../../types/lane';
 import type { ThreadStatus } from '../../types/execution';
 import { BlockRenderer } from '../blocks/BlockRenderer';
-import { Button } from '../ui/Button';
+import {
+  parseBlockDragData,
+  parseDroppedBlockType,
+  parseLaneDragData,
+  setLaneDragData,
+} from '../palette/drag';
+import { RemoveButton } from '../ui/RemoveButton';
+import { ResizeHandle } from '../layout/ResizeHandle';
 import { ThreadDot } from '../visualization/ThreadDot';
-import { parseDroppedBlockType } from '../palette/drag';
 
 type LaneProps = {
   lane: LaneData;
+  laneIndex: number;
   isSelected: boolean;
 };
 
@@ -20,41 +30,113 @@ const STATUS_LABELS: Record<ThreadStatus, string> = {
   done: 'Terminé',
 };
 
-export function Lane({ lane, isSelected }: LaneProps) {
+export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
   const {
+    state: programState,
     selectLane,
     renameLane,
     removeLane,
     addBlock,
     updateBlock,
     removeBlock,
+    reorderLanes,
+    moveBlock,
   } = useProgram();
+  const { layout, setLaneWidth } = useEditorLayout();
   const { state: engineState, isRunning } = useExecution();
 
   const thread = engineState.threads[lane.id];
   const activeBlockId = getActiveBlockId(lane, thread);
   const threadStatus = thread?.status ?? 'idle';
+  const laneWidth = getLaneWidth(layout, lane.id);
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+  const resizeLane = usePointerResize({
+    axis: 'x',
+    onResize: (delta) => setLaneWidth(lane.id, laneWidth + delta),
+  });
+
+  const handlePaletteDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    event.stopPropagation();
+
     const blockType = parseDroppedBlockType(event.dataTransfer);
     if (blockType) {
       addBlock(lane.id, blockType);
+      return;
     }
+
+    const blockDrag = parseBlockDragData(event.dataTransfer);
+    if (blockDrag) {
+      moveBlock(
+        blockDrag.blockId,
+        blockDrag.laneId,
+        lane.id,
+        lane.blocks.length,
+      );
+    }
+  };
+
+  const handleBlockDrop = (
+    event: React.DragEvent<HTMLDivElement>,
+    toIndex: number,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const blockDrag = parseBlockDragData(event.dataTransfer);
+    if (blockDrag) {
+      moveBlock(blockDrag.blockId, blockDrag.laneId, lane.id, toIndex);
+    }
+  };
+
+  const handleLaneHeaderDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const draggedLaneId = parseLaneDragData(event.dataTransfer);
+    if (!draggedLaneId || draggedLaneId === lane.id) {
+      return;
+    }
+
+    const fromIndex = programState.lanes.findIndex(
+      (entry) => entry.id === draggedLaneId,
+    );
+    if (fromIndex === -1) {
+      return;
+    }
+
+    reorderLanes(fromIndex, laneIndex);
   };
 
   return (
     <section
-      className={`flex w-64 shrink-0 flex-col rounded-lg border bg-gray-50 ${
+      className={`relative flex h-full min-h-0 shrink-0 flex-col rounded-lg border bg-gray-50 ${
         isSelected
           ? 'border-indigo-500 ring-2 ring-indigo-200'
           : 'border-gray-200'
       }`}
+      style={{ width: laneWidth }}
       onClick={() => selectLane(lane.id)}
       aria-label={`Lane ${lane.name}`}
     >
-      <header className="flex flex-col gap-1 border-b border-gray-200 p-3">
+      <header
+        className="flex flex-col gap-1 border-b border-gray-200 p-3"
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={handleLaneHeaderDrop}
+      >
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="cursor-grab touch-none rounded px-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600 active:cursor-grabbing"
+            draggable={!isRunning}
+            aria-label={`Déplacer ${lane.name}`}
+            onClick={(event) => event.stopPropagation()}
+            onDragStart={(event) => {
+              setLaneDragData(event.dataTransfer, lane.id);
+            }}
+          >
+            ⠿
+          </button>
           <ThreadDot color={lane.color} status={threadStatus} size="sm" />
           <input
             className="min-w-0 flex-1 rounded border border-gray-300 bg-white px-2 py-1 text-sm font-medium"
@@ -64,17 +146,14 @@ export function Lane({ lane, isSelected }: LaneProps) {
             aria-label="Nom de la lane"
             disabled={isRunning}
           />
-          <Button
-            variant="ghost"
-            className="shrink-0 text-xs"
+          <RemoveButton
+            label="Supprimer la lane"
+            disabled={isRunning}
             onClick={(event) => {
               event.stopPropagation();
               removeLane(lane.id);
             }}
-            disabled={isRunning}
-          >
-            Suppr.
-          </Button>
+          />
         </div>
         <span className="text-xs text-gray-500">
           {STATUS_LABELS[threadStatus]}
@@ -84,25 +163,40 @@ export function Lane({ lane, isSelected }: LaneProps) {
       <div
         className="flex flex-1 flex-col gap-3 overflow-y-auto p-3"
         onDragOver={(event) => event.preventDefault()}
-        onDrop={handleDrop}
+        onDrop={handlePaletteDrop}
       >
         {lane.blocks.length === 0 ? (
           <p className="text-center text-xs text-gray-400">
             Déposez ou ajoutez des blocs ici.
           </p>
         ) : (
-          lane.blocks.map((block) => (
-            <BlockRenderer
+          lane.blocks.map((block, blockIndex) => (
+            <div
               key={block.id}
-              block={block}
-              onChange={(updated) => updateBlock(lane.id, updated)}
-              onRemove={() => removeBlock(lane.id, block.id)}
-              isActive={activeBlockId === block.id}
-              threadColor={lane.color}
-              threadStatus={threadStatus}
-            />
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => handleBlockDrop(event, blockIndex)}
+            >
+              <BlockRenderer
+                block={block}
+                laneId={lane.id}
+                onChange={(updated) => updateBlock(lane.id, updated)}
+                onRemove={() => removeBlock(lane.id, block.id)}
+                isActive={activeBlockId === block.id}
+                threadColor={lane.color}
+                threadStatus={threadStatus}
+                draggable={!isRunning}
+              />
+            </div>
           ))
         )}
+      </div>
+
+      <div className="absolute bottom-0 right-0 top-0 flex w-2 translate-x-1/2 items-stretch">
+        <ResizeHandle
+          orientation="vertical"
+          label={`Redimensionner ${lane.name}`}
+          onPointerDown={resizeLane}
+        />
       </div>
     </section>
   );

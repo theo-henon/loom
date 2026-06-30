@@ -20,7 +20,26 @@ export type ProgramAction =
       type: 'LOAD_SCENARIO';
       lanes: Lane[];
       scenarioId: ScenarioId | null;
+    }
+  | { type: 'REORDER_LANES'; fromIndex: number; toIndex: number }
+  | {
+      type: 'MOVE_BLOCK';
+      blockId: string;
+      fromLaneId: string;
+      toLaneId: string;
+      toIndex: number;
     };
+
+function reorderItems<T>(items: T[], fromIndex: number, toIndex: number): T[] {
+  if (fromIndex === toIndex) {
+    return items;
+  }
+
+  const next = [...items];
+  const [item] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, item);
+  return next;
+}
 
 export const initialProgramState: ProgramState = {
   lanes: [createLane(1), createLane(2)],
@@ -105,5 +124,59 @@ export function programReducer(
         selectedLaneId: action.lanes[0]?.id ?? null,
         activeScenarioId: action.scenarioId,
       };
+    case 'REORDER_LANES':
+      return {
+        ...state,
+        lanes: reorderItems(state.lanes, action.fromIndex, action.toIndex),
+      };
+    case 'MOVE_BLOCK': {
+      const fromLane = state.lanes.find(
+        (lane) => lane.id === action.fromLaneId,
+      );
+      if (!fromLane) {
+        return state;
+      }
+
+      const fromIndex = fromLane.blocks.findIndex(
+        (block) => block.id === action.blockId,
+      );
+      if (fromIndex === -1) {
+        return state;
+      }
+
+      const block = fromLane.blocks[fromIndex];
+      const lanesWithoutBlock = state.lanes.map((lane) =>
+        lane.id === action.fromLaneId
+          ? {
+              ...lane,
+              blocks: lane.blocks.filter(
+                (entry) => entry.id !== action.blockId,
+              ),
+            }
+          : lane,
+      );
+
+      return {
+        ...state,
+        lanes: lanesWithoutBlock.map((lane) => {
+          if (lane.id !== action.toLaneId) {
+            return lane;
+          }
+
+          const blocks = [...lane.blocks];
+          let insertIndex = action.toIndex;
+          if (
+            action.fromLaneId === action.toLaneId &&
+            fromIndex < insertIndex
+          ) {
+            insertIndex -= 1;
+          }
+          insertIndex = Math.max(0, Math.min(insertIndex, blocks.length));
+          blocks.splice(insertIndex, 0, block);
+          return { ...lane, blocks };
+        }),
+        selectedLaneId: action.toLaneId,
+      };
+    }
   }
 }
