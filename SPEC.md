@@ -1,26 +1,19 @@
-# Spec : Phase 1.2 — Moteur d'exécution simulé
+# Spec : Phase 1.3 — Visualisation inline (ronds de couleur)
 
 > **Statut :** Implémentée  
 > **Phase :** Bootstrap (STARTUP.md)
 
 ## Objectif
 
-Simuler l'exécution concurrente des lanes tick par tick, avec variables partagées et contrôles Play/Pause/Step/Reset.
-
-## Tech Stack
-
-Voir [docs/project.md](./docs/project.md#tech-stack).
+Visualiser en temps réel quel thread exécute quel bloc via des ronds de couleur.
 
 ## Success Criteria
 
-- [x] Moteur tick-by-tick (chaque thread avance d'un bloc par tick)
-- [x] Sémantique Variable, Opération, Condition (blocage), Boucle
-- [x] Variables partagées affichées en temps réel
-- [x] Contrôles Play / Pause / Step / Reset
-- [x] États thread : idle, running, blocked, done
-- [x] Surbrillance du bloc actif
-- [x] Tests unitaires moteur
+- [x] Couleur distincte par lane (assignée à la création)
+- [x] Rond coloré sur le bloc actif
+- [x] Animation à l'apparition du rond entre les ticks
+- [x] Indicateur d'état thread (idle, running, blocked, done) via le rond
 
 ## Références
 
-- [STARTUP.md — Phase 1.2](./STARTUP.md#phase-12--moteur-dexécution-simulé)
+- [STARTUP.md — Phase 1.3](./STARTUP.md#phase-13--visualisation-inline-ronds-de-couleur)

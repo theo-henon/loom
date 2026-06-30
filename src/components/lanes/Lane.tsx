@@ -5,6 +5,7 @@ import type { Lane as LaneData } from '../../types/lane';
 import type { ThreadStatus } from '../../types/execution';
 import { BlockRenderer } from '../blocks/BlockRenderer';
 import { Button } from '../ui/Button';
+import { ThreadDot } from '../visualization/ThreadDot';
 import { parseDroppedBlockType } from '../palette/drag';
 
 type LaneProps = {
@@ -54,6 +55,7 @@ export function Lane({ lane, isSelected }: LaneProps) {
     >
       <header className="flex flex-col gap-1 border-b border-gray-200 p-3">
         <div className="flex items-center gap-2">
+          <ThreadDot color={lane.color} status={threadStatus} size="sm" />
           <input
             className="min-w-0 flex-1 rounded border border-gray-300 bg-white px-2 py-1 text-sm font-medium"
             value={lane.name}
@@ -96,9 +98,8 @@ export function Lane({ lane, isSelected }: LaneProps) {
               onChange={(updated) => updateBlock(lane.id, updated)}
               onRemove={() => removeBlock(lane.id, block.id)}
               isActive={activeBlockId === block.id}
-              isBlocked={
-                threadStatus === 'blocked' && activeBlockId === block.id
-              }
+              threadColor={lane.color}
+              threadStatus={threadStatus}
             />
           ))
         )}

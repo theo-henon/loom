@@ -1,13 +1,14 @@
-# Implementation Plan: Phase 1.2 — Moteur d'exécution simulé
+# Implementation Plan: Phase 1.3 — Visualisation inline
 
 > Référence : [SPEC.md](../SPEC.md)
 
 ## Tâches
 
-- [x] Types execution + blockSemantics + engine
-- [x] useExecution + ExecutionProvider
-- [x] ExecutionControls + SharedVariablesPanel + surbrillance blocs
-- [x] Tests moteur
+- [x] Couleurs thread (`threadColors.ts` + champ `lane.color`)
+- [x] Composant `ThreadDot`
+- [x] Intégration dans blocs, lanes et panneau visualisation
+- [x] Animation CSS `thread-dot-pop`
+- [x] Tests
 
 ## Vérification locale
 
@@ -17,6 +18,4 @@ npm run lint && npm run test:run && npm run build
 
 ## Essai manuel
 
-1. Thread 1 : Variable `x = 0`
-2. Thread 2 : Opération `x + 1`
-3. Step × 2 → variable partagée `x = 1`
+Lancer Play sur un programme multi-threads — les ronds colorés se déplacent bloc par bloc.
