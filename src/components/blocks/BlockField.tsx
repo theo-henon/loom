@@ -15,9 +15,7 @@ export function BlockFieldRow({
   className = '',
 }: BlockFieldRowProps) {
   return (
-    <label
-      className={`flex min-w-0 items-center gap-1.5 text-xs ${className}`}
-    >
+    <label className={`flex min-w-0 items-center gap-1.5 text-xs ${className}`}>
       <span className="shrink-0 text-gray-500">{label}</span>
       {children}
     </label>

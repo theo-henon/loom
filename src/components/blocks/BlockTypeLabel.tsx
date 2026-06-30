@@ -1,4 +1,8 @@
-import { BLOCK_HELP_TEXT, BLOCK_TYPE_LABELS, type BlockType } from '../../types/blocks';
+import {
+  BLOCK_HELP_TEXT,
+  BLOCK_TYPE_LABELS,
+  type BlockType,
+} from '../../types/blocks';
 import { Tooltip } from '../ui/Tooltip';
 import { BlockTypeIcon } from './BlockTypeIcon';
 

@@ -6,11 +6,7 @@ type TooltipProps = {
   className?: string;
 };
 
-export function Tooltip({
-  content,
-  children,
-  className = '',
-}: TooltipProps) {
+export function Tooltip({ content, children, className = '' }: TooltipProps) {
   return (
     <span
       className={`group/tooltip relative inline-flex max-w-full ${className}`}
