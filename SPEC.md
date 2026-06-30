@@ -1,19 +1,20 @@
-# Spec : Phase 1.3 — Visualisation inline (ronds de couleur)
+# Spec : Phase 1.4 — Visualisation timeline
 
 > **Statut :** Implémentée  
 > **Phase :** Bootstrap (STARTUP.md)
 
 ## Objectif
 
-Visualiser en temps réel quel thread exécute quel bloc via des ronds de couleur.
+Visualiser l'historique d'exécution de tous les threads sur un axe temporel (ticks).
 
 ## Success Criteria
 
-- [x] Couleur distincte par lane (assignée à la création)
-- [x] Rond coloré sur le bloc actif
-- [x] Animation à l'apparition du rond entre les ticks
-- [x] Indicateur d'état thread (idle, running, blocked, done) via le rond
+- [x] Panneau timeline dans la zone de visualisation droite
+- [x] Une ligne par thread (couleur correspondante)
+- [x] Axe X = ticks d'exécution écoulés
+- [x] Segments colorés par bloc (nom visible au survol)
+- [x] Défilement automatique vers la droite pendant l'exécution
 
 ## Références
 
-- [STARTUP.md — Phase 1.3](./STARTUP.md#phase-13--visualisation-inline-ronds-de-couleur)
+- [STARTUP.md — Phase 1.4](./STARTUP.md#phase-14--visualisation-timeline)

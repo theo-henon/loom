@@ -6,6 +6,7 @@ import type {
   LoopFrame,
   ThreadState,
 } from '../types/execution';
+import { appendTimelineForTick } from './timeline';
 import { evaluateCondition, executeBlock } from './blockSemantics';
 
 function createThreadState(laneId: string): ThreadState {
@@ -28,6 +29,7 @@ export function createEngineState(lanes: Lane[]): EngineState {
     threads,
     tick: 0,
     phase: 'idle',
+    timeline: [],
   };
 }
 
@@ -172,6 +174,7 @@ function resolvePhase(
 
 export function runTick(state: EngineState, lanes: Lane[]): EngineState {
   const variables = { ...state.variables };
+  const beforeThreads = { ...state.threads };
   const threads = { ...state.threads };
 
   for (const lane of lanes) {
@@ -179,13 +182,23 @@ export function runTick(state: EngineState, lanes: Lane[]): EngineState {
     threads[lane.id] = stepThread(current, lane.blocks, variables);
   }
 
+  const tick = state.tick + 1;
+  const timeline = appendTimelineForTick(
+    state.timeline,
+    tick,
+    lanes,
+    beforeThreads,
+    threads,
+  );
+
   const phase = resolvePhase(state.phase, lanes, threads);
 
   return {
     variables,
     threads,
-    tick: state.tick + 1,
+    tick,
     phase: phase === 'paused' ? 'paused' : phase,
+    timeline,
   };
 }
 
