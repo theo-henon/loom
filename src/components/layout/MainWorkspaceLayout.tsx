@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { BlockPalettePanel } from '../palette/BlockPalettePanel';
 import { VisualizationPanel } from '../visualization/VisualizationPanel';
 import { LaneEditor } from '../lanes/LaneEditor';
@@ -7,17 +8,20 @@ import { useEditorLayout } from '../../hooks/editorLayoutContext';
 import { usePointerResize } from '../../hooks/usePointerResize';
 
 export function MainWorkspaceLayout() {
-  const { layout, setPaletteWidth, setVisualizationWidth } = useEditorLayout();
+  const { layout, adjustPaletteWidth, adjustVisualizationWidth } =
+    useEditorLayout();
 
   const resizePalette = usePointerResize({
     axis: 'x',
-    onResize: (delta) => setPaletteWidth(layout.panelWidths.palette + delta),
+    onResize: adjustPaletteWidth,
   });
 
   const resizeVisualization = usePointerResize({
     axis: 'x',
-    onResize: (delta) =>
-      setVisualizationWidth(layout.panelWidths.visualization - delta),
+    onResize: useCallback(
+      (delta: number) => adjustVisualizationWidth(-delta),
+      [adjustVisualizationWidth],
+    ),
   });
 
   return (

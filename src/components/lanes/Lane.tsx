@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { getActiveBlockId } from '../../engine/engine';
 import { useEditorLayout } from '../../hooks/editorLayoutContext';
 import { useExecution } from '../../hooks/useExecution';
@@ -42,7 +43,7 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
     reorderLanes,
     moveBlock,
   } = useProgram();
-  const { layout, setLaneWidth } = useEditorLayout();
+  const { layout, adjustLaneWidth } = useEditorLayout();
   const { state: engineState, isRunning } = useExecution();
 
   const thread = engineState.threads[lane.id];
@@ -52,7 +53,10 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
 
   const resizeLane = usePointerResize({
     axis: 'x',
-    onResize: (delta) => setLaneWidth(lane.id, laneWidth + delta),
+    onResize: useCallback(
+      (delta) => adjustLaneWidth(lane.id, delta),
+      [adjustLaneWidth, lane.id],
+    ),
   });
 
   const handlePaletteDrop = (event: React.DragEvent<HTMLDivElement>) => {

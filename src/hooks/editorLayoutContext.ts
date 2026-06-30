@@ -3,9 +3,9 @@ import type { EditorLayout } from '../types/editorLayout';
 
 export type EditorLayoutContextValue = {
   layout: EditorLayout;
-  setPaletteWidth: (width: number) => void;
-  setVisualizationWidth: (width: number) => void;
-  setLaneWidth: (laneId: string, width: number) => void;
+  adjustPaletteWidth: (delta: number) => void;
+  adjustVisualizationWidth: (delta: number) => void;
+  adjustLaneWidth: (laneId: string, delta: number) => void;
   saveLayout: () => void;
   restoreDefaultLayout: () => void;
   layoutSaved: boolean;

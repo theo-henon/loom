@@ -3,6 +3,7 @@ import {
   DEFAULT_EDITOR_LAYOUT,
   clampLaneWidth,
   clampPanelWidth,
+  getLaneWidth,
   type EditorLayout,
 } from '../types/editorLayout';
 import {
@@ -22,35 +23,37 @@ export function EditorLayoutProvider({ children }: { children: ReactNode }) {
     () => loadEditorLayout() !== null,
   );
 
-  const setPaletteWidth = useCallback((width: number) => {
+  const adjustPaletteWidth = useCallback((delta: number) => {
     setLayoutSaved(false);
     setLayout((current) => ({
       ...current,
       panelWidths: {
         ...current.panelWidths,
-        palette: clampPanelWidth(width),
+        palette: clampPanelWidth(current.panelWidths.palette + delta),
       },
     }));
   }, []);
 
-  const setVisualizationWidth = useCallback((width: number) => {
+  const adjustVisualizationWidth = useCallback((delta: number) => {
     setLayoutSaved(false);
     setLayout((current) => ({
       ...current,
       panelWidths: {
         ...current.panelWidths,
-        visualization: clampPanelWidth(width),
+        visualization: clampPanelWidth(
+          current.panelWidths.visualization + delta,
+        ),
       },
     }));
   }, []);
 
-  const setLaneWidth = useCallback((laneId: string, width: number) => {
+  const adjustLaneWidth = useCallback((laneId: string, delta: number) => {
     setLayoutSaved(false);
     setLayout((current) => ({
       ...current,
       laneWidths: {
         ...current.laneWidths,
-        [laneId]: clampLaneWidth(width),
+        [laneId]: clampLaneWidth(getLaneWidth(current, laneId) + delta),
       },
     }));
   }, []);
@@ -69,18 +72,18 @@ export function EditorLayoutProvider({ children }: { children: ReactNode }) {
   const value = useMemo<EditorLayoutContextValue>(
     () => ({
       layout,
-      setPaletteWidth,
-      setVisualizationWidth,
-      setLaneWidth,
+      adjustPaletteWidth,
+      adjustVisualizationWidth,
+      adjustLaneWidth,
       saveLayout,
       restoreDefaultLayout,
       layoutSaved,
     }),
     [
       layout,
-      setPaletteWidth,
-      setVisualizationWidth,
-      setLaneWidth,
+      adjustPaletteWidth,
+      adjustVisualizationWidth,
+      adjustLaneWidth,
       saveLayout,
       restoreDefaultLayout,
       layoutSaved,
