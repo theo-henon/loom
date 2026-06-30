@@ -1,16 +1,15 @@
-# Implementation Plan: Phase 1.4 — Visualisation timeline
+# Implementation Plan: Phase 1.5 — Scénarios pré-construits
 
 > Référence : [SPEC.md](../SPEC.md)
 
 ## Tâches
 
-- [x] Type `TimelineSegment` + champ `timeline` dans `EngineState`
-- [x] Enregistrement des segments dans `runTick` (`engine/timeline.ts`)
-- [x] Fusion des segments adjacents (même bloc, ex. condition bloquée)
-- [x] Composant `TimelinePanel` (grille, axe ticks, segments colorés)
-- [x] Intégration dans `VisualizationPanel`
-- [x] Auto-scroll pendant Play
-- [x] Tests moteur timeline
+- [x] Définitions des 3 scénarios (`src/scenarios/`)
+- [x] Action `LOAD_SCENARIO` dans le reducer
+- [x] Écran d'accueil `ScenarioWelcome`
+- [x] Modal « Charger un scénario » depuis le header
+- [x] Badge scénario actif dans le header
+- [x] Tests scénarios + reducer + App
 
 ## Vérification locale
 
@@ -20,4 +19,8 @@ npm run lint && npm run test:run && npm run build
 
 ## Essai manuel
 
-Lancer Play sur un programme multi-threads — la timeline se remplit tick par tick et défile vers la droite.
+Charger « Deadlock », lancer Play — les deux threads se bloquent, ronds ambre + timeline visible.
+
+## MVP
+
+Phase 1.5 complète le MVP bootstrap. **Supprimer STARTUP.md** après merge si confirmé.

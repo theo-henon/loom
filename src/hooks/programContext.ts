@@ -1,5 +1,7 @@
 import { createContext, type Dispatch } from 'react';
 import type { Block, BlockType } from '../types/blocks';
+import type { Lane } from '../types/lane';
+import type { ScenarioId } from '../scenarios/types';
 import type { ProgramAction, ProgramState } from './programReducer';
 
 export type ProgramContextValue = {
@@ -13,6 +15,7 @@ export type ProgramContextValue = {
   removeBlock: (laneId: string, blockId: string) => void;
   updateBlock: (laneId: string, block: Block) => void;
   addBlockToSelectedLane: (blockType: BlockType) => void;
+  loadScenario: (lanes: Lane[], scenarioId: ScenarioId | null) => void;
 };
 
 export const ProgramContext = createContext<ProgramContextValue | null>(null);

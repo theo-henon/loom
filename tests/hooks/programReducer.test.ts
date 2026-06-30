@@ -49,4 +49,25 @@ describe('programReducer', () => {
     expect(next.lanes).toHaveLength(1);
     expect(next.selectedLaneId).toBe(next.lanes[0].id);
   });
+
+  it('loads a scenario and replaces lanes', () => {
+    const scenarioLanes = [
+      {
+        ...initialProgramState.lanes[0],
+        name: 'Scénario',
+        blocks: [{ id: 'b1', type: 'variable' as const, name: 'x', value: 0 }],
+      },
+    ];
+
+    const next = programReducer(initialProgramState, {
+      type: 'LOAD_SCENARIO',
+      lanes: scenarioLanes,
+      scenarioId: 'deadlock',
+    });
+
+    expect(next.lanes).toHaveLength(1);
+    expect(next.lanes[0].name).toBe('Scénario');
+    expect(next.activeScenarioId).toBe('deadlock');
+    expect(next.selectedLaneId).toBe(scenarioLanes[0].id);
+  });
 });
