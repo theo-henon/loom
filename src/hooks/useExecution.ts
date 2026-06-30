@@ -6,10 +6,10 @@ import {
   runTick,
 } from '../engine/engine';
 import type { EngineState } from '../types/execution';
+import type { ExecutionSpeed } from '../types/executionSpeed';
+import { getTickIntervalMs } from '../types/executionSpeed';
 import { ExecutionContext } from './executionContext';
 import { useProgram } from './useProgram';
-
-const TICK_INTERVAL_MS = 600;
 
 export function useExecutionController() {
   const { state: programState } = useProgram();
@@ -18,6 +18,7 @@ export function useExecutionController() {
   const [engineState, setEngineState] = useState<EngineState>(() =>
     createEngineState(lanes),
   );
+  const [speed, setSpeed] = useState<ExecutionSpeed>('normal');
 
   const intervalRef = useRef<number | null>(null);
 
@@ -59,10 +60,10 @@ export function useExecutionController() {
 
     intervalRef.current = window.setInterval(() => {
       setEngineState((current) => runTick(current, lanes));
-    }, TICK_INTERVAL_MS);
+    }, getTickIntervalMs(speed));
 
     return clearTimer;
-  }, [engineState.phase, clearTimer, lanes]);
+  }, [engineState.phase, clearTimer, lanes, speed]);
 
   useEffect(() => {
     if (engineState.phase === 'finished') {
@@ -79,6 +80,8 @@ export function useExecutionController() {
     step,
     reset,
     isRunning,
+    speed,
+    setSpeed,
   };
 }
 
