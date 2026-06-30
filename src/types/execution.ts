@@ -1,3 +1,5 @@
+import type { TimelineSegment } from './timeline';
+
 export type ThreadStatus = 'idle' | 'running' | 'blocked' | 'done';
 
 export type EnginePhase = 'idle' | 'running' | 'paused' | 'finished';
@@ -21,6 +23,7 @@ export type EngineState = {
   threads: Record<string, ThreadState>;
   tick: number;
   phase: EnginePhase;
+  timeline: TimelineSegment[];
 };
 
 export type SharedVariables = Record<string, number>;

@@ -10,7 +10,7 @@ concurrence pour la première fois.
 
 ## État courant
 
-**Phase actuelle :** Phase 1.3 — Visualisation inline (ronds de couleur)
+**Phase actuelle :** Phase 1.4 — Visualisation timeline
 **MVP visé :** fin de Phase 1.5
 
 > Plan de démarrage complet : voir [STARTUP.md](./STARTUP.md)

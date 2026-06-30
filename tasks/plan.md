@@ -1,14 +1,16 @@
-# Implementation Plan: Phase 1.3 — Visualisation inline
+# Implementation Plan: Phase 1.4 — Visualisation timeline
 
 > Référence : [SPEC.md](../SPEC.md)
 
 ## Tâches
 
-- [x] Couleurs thread (`threadColors.ts` + champ `lane.color`)
-- [x] Composant `ThreadDot`
-- [x] Intégration dans blocs, lanes et panneau visualisation
-- [x] Animation CSS `thread-dot-pop`
-- [x] Tests
+- [x] Type `TimelineSegment` + champ `timeline` dans `EngineState`
+- [x] Enregistrement des segments dans `runTick` (`engine/timeline.ts`)
+- [x] Fusion des segments adjacents (même bloc, ex. condition bloquée)
+- [x] Composant `TimelinePanel` (grille, axe ticks, segments colorés)
+- [x] Intégration dans `VisualizationPanel`
+- [x] Auto-scroll pendant Play
+- [x] Tests moteur timeline
 
 ## Vérification locale
 
@@ -18,4 +20,4 @@ npm run lint && npm run test:run && npm run build
 
 ## Essai manuel
 
-Lancer Play sur un programme multi-threads — les ronds colorés se déplacent bloc par bloc.
+Lancer Play sur un programme multi-threads — la timeline se remplit tick par tick et défile vers la droite.

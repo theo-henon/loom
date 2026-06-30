@@ -1,4 +1,5 @@
 import { SharedVariablesPanel } from './SharedVariablesPanel';
+import { TimelinePanel } from './TimelinePanel';
 import { Panel } from '../ui/Panel';
 
 type VisualizationPanelProps = {
@@ -10,7 +11,10 @@ export function VisualizationPanel({
 }: VisualizationPanelProps) {
   return (
     <Panel title="Visualisation" className={className}>
-      <SharedVariablesPanel />
+      <div className="space-y-4">
+        <TimelinePanel />
+        <SharedVariablesPanel />
+      </div>
     </Panel>
   );
 }
