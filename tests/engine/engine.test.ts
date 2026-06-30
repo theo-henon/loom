@@ -93,6 +93,84 @@ describe('engine', () => {
     expect(state.threads[lane.id].status).toBe('done');
   });
 
+  it('blocks a thread when a mutex is already held', () => {
+    const lane1 = {
+      ...createLane(1),
+      blocks: [
+        { ...createBlock('mutex'), name: 'm' },
+        {
+          ...createBlock('operation'),
+          targetVariable: 'x',
+          operator: '+',
+          operand: 1,
+        },
+      ],
+    };
+
+    const lane2 = {
+      ...createLane(2),
+      blocks: [
+        { ...createBlock('mutex'), name: 'm' },
+        {
+          ...createBlock('operation'),
+          targetVariable: 'x',
+          operator: '+',
+          operand: 1,
+        },
+      ],
+    };
+
+    let state = createEngineState([lane1, lane2]);
+    state = runTick(state, [lane1, lane2]);
+
+    expect(state.threads[lane1.id].status).toBe('running');
+    expect(state.threads[lane2.id].status).toBe('blocked');
+    expect(state.mutexes.m?.ownerLaneId).toBe(lane1.id);
+  });
+
+  it('serializes critical sections with the same mutex name', () => {
+    const lane1 = {
+      ...createLane(1),
+      blocks: [
+        { ...createBlock('variable'), name: 'x', value: 0 },
+        { ...createBlock('loop'), iterations: 2 },
+        { ...createBlock('mutex'), name: 'm' },
+        {
+          ...createBlock('operation'),
+          targetVariable: 'x',
+          operator: '+',
+          operand: 1,
+        },
+      ],
+    };
+
+    const lane2 = {
+      ...createLane(2),
+      blocks: [
+        { ...createBlock('loop'), iterations: 2 },
+        { ...createBlock('mutex'), name: 'm' },
+        {
+          ...createBlock('operation'),
+          targetVariable: 'x',
+          operator: '+',
+          operand: 1,
+        },
+      ],
+    };
+
+    let state = createEngineState([lane1, lane2]);
+
+    for (let tick = 0; tick < 30; tick += 1) {
+      state = runTick(state, [lane1, lane2]);
+      if (state.phase === 'finished') {
+        break;
+      }
+    }
+
+    expect(state.variables.x).toBe(4);
+    expect(state.phase).toBe('finished');
+  });
+
   it('resets engine state', () => {
     const lane = {
       ...createLane(1),

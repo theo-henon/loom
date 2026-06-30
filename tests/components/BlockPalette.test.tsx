@@ -23,8 +23,11 @@ describe('BlockPalette', () => {
     expect(
       screen.getByRole('button', { name: 'Ajouter bloc Boucle' }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Ajouter bloc Mutex' }),
+    ).toBeInTheDocument();
 
     const icons = document.querySelectorAll('[aria-hidden="true"] svg');
-    expect(icons.length).toBeGreaterThanOrEqual(4);
+    expect(icons.length).toBeGreaterThanOrEqual(5);
   });
 });

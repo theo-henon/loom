@@ -70,6 +70,7 @@ export function executeBlock(
       break;
     case 'condition':
     case 'loop':
+    case 'mutex':
       break;
   }
 }

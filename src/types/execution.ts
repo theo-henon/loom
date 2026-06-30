@@ -11,16 +11,32 @@ export type LoopFrame = {
   remaining: number;
 };
 
+export type MutexFrame = {
+  mutexBlockIndex: number;
+  bodyStart: number;
+  bodyEnd: number;
+  mutexName: string;
+};
+
+export type MutexEntry = {
+  ownerLaneId: string | null;
+  waitingLaneIds: string[];
+};
+
+export type MutexRegistry = Record<string, MutexEntry>;
+
 export type ThreadState = {
   laneId: string;
   pc: number;
   status: ThreadStatus;
   loopStack: LoopFrame[];
+  mutexStack: MutexFrame[];
 };
 
 export type EngineState = {
   variables: Record<string, number>;
   threads: Record<string, ThreadState>;
+  mutexes: MutexRegistry;
   tick: number;
   phase: EnginePhase;
   timeline: TimelineSegment[];

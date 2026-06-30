@@ -1,20 +1,26 @@
-# Spec — Layout éditeur (redimensionner / déplacer / sauvegarder)
+# Spec — Mutex
 
-> **Statut :** Implémentée  
-> **Feature :** post-MVP (IDEAS.md)
+> **Statut :** En cours  
+> **Feature :** post-MVP ([IDEAS.md](./IDEAS.md))
 
 ## Objective
 
-Permettre à l'utilisateur de ralentir ou accélérer l'exécution automatique (Play) pour mieux observer les scénarios rapides ou avancer plus vite sur les longs.
+Un bloc composite **Mutex** : un seul thread à la fois exécute les blocs placés en dessous dans la lane. Verrouillage et déverrouillage automatiques — pas de bloc « unlock » séparé.
 
 ## Success Criteria
 
-- [x] Sélecteur vitesse dans le header à côté des contrôles d'exécution
-- [x] 3 vitesses : Lente (1200 ms), Normale (600 ms), Rapide (200 ms)
-- [x] Play respecte la vitesse ; Step/Reset inchangés
-- [x] Persistance session (state React, pas de localStorage)
-- [x] Tests passent
+- [x] Bloc « Mutex » dans la palette (nom de verrou éditable)
+- [x] Moteur : acquire au début, release à la fin, état `blocked` si occupé
+- [x] Visualisation : statut Bloqué sur la lane ; pastille propriétaire sur le bloc
+- [x] Scénario « Race condition corrigée » (résultat stable x = 6)
+- [x] Tests moteur + scénario
 
-## Références
+## Tech Stack
 
-- [IDEAS.md — Speed control](./IDEAS.md)
+Voir [docs/project.md](./docs/project.md).
+
+## Boundaries
+
+- Pas de sémaphore en v1
+- Pas de panneau mutex séparé
+- Corps = blocs sous le mutex jusqu'à la fin de la lane (même modèle que la boucle)
