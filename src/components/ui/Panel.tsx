@@ -11,6 +11,7 @@ export function Panel({ title, children, className = '' }: PanelProps) {
     <section
       className={`flex flex-col border border-gray-200 bg-white ${className}`}
       aria-label={title}
+      role="region"
     >
       <header className="border-b border-gray-200 px-4 py-2">
         <h2 className="text-sm font-semibold text-gray-700">{title}</h2>

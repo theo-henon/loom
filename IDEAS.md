@@ -10,6 +10,7 @@
 ## Ideas
 
 ### Shareable scenario links
+
 **Context:** Surfaced during project exploration — sharing scenarios between learners would increase the pedagogical value.
 **Value:** A teacher could send a pre-built scenario link to students; students could share their own creations.
 **Estimated effort:** Medium
@@ -19,6 +20,7 @@
 ---
 
 ### Community scenario library
+
 **Context:** Logical extension of the pre-built scenarios — a place to discover and contribute scenarios.
 **Value:** Grows the pedagogical value without extra work from the core team; scenarios covering mutex, semaphores, producer/consumer, etc.
 **Estimated effort:** Heavy
@@ -28,6 +30,7 @@
 ---
 
 ### Export scenarios as real code
+
 **Context:** Raised during initial project setup — generating real code (Python, Java, Go) from block-based programs.
 **Value:** Bridges the gap between visual learning and real-world coding; learners see the direct translation.
 **Estimated effort:** Heavy
@@ -37,6 +40,7 @@
 ---
 
 ### Speed control for execution
+
 **Context:** A natural UX improvement for the visualization.
 **Value:** Users can slow down or speed up execution to observe fast-moving scenarios more easily.
 **Estimated effort:** Quick
@@ -46,6 +50,7 @@
 ---
 
 ### Mutex / semaphore blocks
+
 **Context:** Covering the synchronization primitives that solve race conditions.
 **Value:** Completes the concurrency curriculum — students learn the problem (race condition) and the solution (mutex).
 **Estimated effort:** Medium
@@ -54,4 +59,4 @@
 
 ---
 
-*More ideas will be added during `/spec` sessions when something surfaces without being MVP priority.*
+_More ideas will be added during `/spec` sessions when something surfaces without being MVP priority._

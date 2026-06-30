@@ -11,6 +11,7 @@
 > Validated with Context7 before project start.
 
 ### Frontend
+
 - **Framework:** React 19.2.7
 - **Language:** TypeScript 5.x
 - **Build tool:** Vite 8.0.10
@@ -19,16 +20,19 @@
 - **Testing:** Vitest + React Testing Library
 
 ### Backend
+
 None. Loom is a fully static frontend application — no server, no database,
 no authentication.
 
 ### Infrastructure
+
 - **Platform:** GitHub Pages (static hosting)
 - **CI/CD:** GitHub Actions
 - **Version control:** GitHub (public repository — open-source)
 - **Monitoring:** None for MVP
 
 ### Approved third-party libraries
+
 - `vite@8.0.10` — build tool and dev server
 - `react@19.2.7` — UI framework
 - `react-dom@19.2.7` — DOM renderer
@@ -38,11 +42,13 @@ no authentication.
 - `@testing-library/react` — component testing utilities
 
 ### Forbidden patterns
+
 - No libraries released less than 6 months ago without explicit approval
 - No backend frameworks, no server-side rendering in this project
 - No real multithreading (Web Workers) in the MVP — the execution engine must be a simulation
 
 ### Version policy
+
 All versions above were verified via Context7 at project start.
 Any upgrade must be re-validated via Context7 and documented as an ADR in `docs/adr/`.
 
@@ -51,6 +57,7 @@ Any upgrade must be re-validated via Context7 and documented as an ADR in `docs/
 ## Architecture
 
 ### Overview
+
 Loom is a single-page application (SPA) with three main zones: a block palette
 (left), a lane editor (center), and a visualization panel (right). A custom
 tick-based execution engine simulates concurrent thread execution in a controlled,
@@ -58,16 +65,16 @@ deterministic way for pedagogical clarity.
 
 ### Domain Map
 
-| Domain | Responsibility | Key Files/Folders |
-|---|---|---|
-| Blocks | Block types and their visual representation | `src/components/blocks/` |
-| Lanes | Thread lane management and layout | `src/components/lanes/` |
-| Palette | Block picker sidebar | `src/components/palette/` |
-| Visualization | Inline dots + timeline views | `src/components/visualization/` |
-| Engine | Tick-based concurrent execution simulator | `src/engine/` |
-| Scenarios | Pre-built scenario definitions and loader | `src/scenarios/` |
-| Hooks | Shared React hooks (useEngine, useLanes, etc.) | `src/hooks/` |
-| Types | Shared TypeScript type definitions | `src/types/` |
+| Domain        | Responsibility                                 | Key Files/Folders               |
+| ------------- | ---------------------------------------------- | ------------------------------- |
+| Blocks        | Block types and their visual representation    | `src/components/blocks/`        |
+| Lanes         | Thread lane management and layout              | `src/components/lanes/`         |
+| Palette       | Block picker sidebar                           | `src/components/palette/`       |
+| Visualization | Inline dots + timeline views                   | `src/components/visualization/` |
+| Engine        | Tick-based concurrent execution simulator      | `src/engine/`                   |
+| Scenarios     | Pre-built scenario definitions and loader      | `src/scenarios/`                |
+| Hooks         | Shared React hooks (useEngine, useLanes, etc.) | `src/hooks/`                    |
+| Types         | Shared TypeScript type definitions             | `src/types/`                    |
 
 ### Data Flow
 
@@ -89,17 +96,18 @@ Components never import from other components' internals — only from shared `u
 
 ### Key Architectural Decisions
 
-| Decision | Rationale | Alternatives rejected |
-|---|---|---|
-| Simulated execution (tick-based) over real Web Workers | Deterministic, pausable, observable — essential for pedagogy | Real Web Workers (non-deterministic, hard to pause/visualize) |
-| Pure frontend / no backend | Simpler stack, GitHub Pages compatible, zero maintenance | Backend for scenario persistence (post-MVP, IDEAS.md) |
-| Custom blocks vs Blockly | Parallel lane layout doesn't map naturally to Blockly's sequential model; more control over UX | Blockly (sequential-only, heavy) |
-| React built-in state for MVP | Sufficient for MVP scope; avoid premature abstraction | Zustand (deferred to post-MVP if complexity grows) |
+| Decision                                               | Rationale                                                                                      | Alternatives rejected                                         |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Simulated execution (tick-based) over real Web Workers | Deterministic, pausable, observable — essential for pedagogy                                   | Real Web Workers (non-deterministic, hard to pause/visualize) |
+| Pure frontend / no backend                             | Simpler stack, GitHub Pages compatible, zero maintenance                                       | Backend for scenario persistence (post-MVP, IDEAS.md)         |
+| Custom blocks vs Blockly                               | Parallel lane layout doesn't map naturally to Blockly's sequential model; more control over UX | Blockly (sequential-only, heavy)                              |
+| React built-in state for MVP                           | Sufficient for MVP scope; avoid premature abstraction                                          | Zustand (deferred to post-MVP if complexity grows)            |
 
 > Significant architectural changes after project start should be captured as
 > ADRs in `docs/adr/` via the `documentation-and-adrs` skill.
 
 ### Anti-Patterns
+
 - No direct engine calls from visual components — always through hooks
 - No business logic inside component files — logic lives in `engine/` or `hooks/`
 - No hardcoded scenario data in components — scenarios are loaded from `src/scenarios/`
@@ -142,6 +150,7 @@ loom/
 ```
 
 Files created at runtime by agent-skills (not by the vibe-project skill):
+
 - `SPEC.md` — per feature, via `/spec` (can be deleted before merge)
 - `tasks/plan.md`, `tasks/todo.md` — via `/plan` (can be deleted before merge)
 - `docs/adr/NNN-*.md` — via `documentation-and-adrs` (permanent)
@@ -155,6 +164,7 @@ Files created at runtime by agent-skills (not by the vibe-project skill):
 > Any deviation must be discussed and documented as an ADR.
 
 ### Setup
+
 - **Repository:** GitHub — public (open-source)
 - **Platform:** GitHub Pages (static, built by Vite)
 - **CI/CD:** GitHub Actions — workflow triggers on push to `main`
@@ -165,6 +175,7 @@ Files created at runtime by agent-skills (not by the vibe-project skill):
 short-lived branches merged into `main` via PR.
 
 **Branch flow:**
+
 - `main` → auto-deploy to GitHub Pages
 - `feature/*` → new user-facing feature or project phase
 - `fix/*` → bug fix
@@ -175,9 +186,11 @@ short-lived branches merged into `main` via PR.
 All task branches are merged into `main` via PR after review.
 
 **Build:**
+
 ```bash
 npm run build   # outputs to dist/
 ```
+
 Vite must be configured with the correct `base` URL for GitHub Pages
 (e.g. `/loom/` if deployed to `https://<username>.github.io/loom/`).
 
@@ -185,31 +198,36 @@ Vite must be configured with the correct `base` URL for GitHub Pages
 None required. Loom is fully static with no secrets.
 
 **Rollback:**
+
 - `git revert <commit>` + push to `main`
 - GitHub Actions redeploys the reverted version automatically.
 
 **Never:**
+
 - Commit or push directly to `main` unless explicitly requested by the user
 - Merge a task branch without review
 - `git push origin main --force`
 
 **URLs:**
 
-| Environment | URL |
-|---|---|
-| Local | `http://localhost:5173` |
-| Production | `https://theo-henon.github.io/loom/` |
+| Environment | URL                                  |
+| ----------- | ------------------------------------ |
+| Local       | `http://localhost:5173`              |
+| Production  | `https://theo-henon.github.io/loom/` |
 
 ---
 
 ## Constraints
 
 ### Security level
+
 - [x] Prototype — no user data, no authentication, no sensitive information
 
 ### Data classification
+
 No user data collected. All state is in-memory and ephemeral (reset on page reload).
 
 ### Coverage targets
+
 - Engine unit tests: aim for 80%+ coverage on execution logic
 - Component tests: smoke tests on key interactions (block add, lane create, play/pause)

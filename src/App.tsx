@@ -1,8 +1,10 @@
+import { ProgramProvider } from './hooks/ProgramProvider';
 import { BlockPalettePanel } from './components/palette/BlockPalettePanel';
 import { VisualizationPanel } from './components/visualization/VisualizationPanel';
+import { LaneEditor } from './components/lanes/LaneEditor';
 import { Panel } from './components/ui/Panel';
 
-export function App() {
+function AppContent() {
   return (
     <div className="flex h-screen flex-col bg-gray-50">
       <header className="border-b border-gray-200 px-6 py-3">
@@ -11,10 +13,18 @@ export function App() {
       <main className="flex flex-1 overflow-hidden">
         <BlockPalettePanel className="w-60 shrink-0" />
         <Panel title="Éditeur de lanes" className="flex-1">
-          <p className="text-sm text-gray-400">Les lanes apparaîtront ici.</p>
+          <LaneEditor />
         </Panel>
         <VisualizationPanel className="w-80 shrink-0" />
       </main>
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <ProgramProvider>
+      <AppContent />
+    </ProgramProvider>
   );
 }

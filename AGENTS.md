@@ -84,6 +84,7 @@ loom/
 ## Project-specific conventions
 
 ### Source of truth for Tech Stack and Project Structure
+
 - **`docs/project.md` is authoritative.**
 - When running `/spec` or any skill that requires Tech Stack / Project
   Structure information, **reference `docs/project.md` instead of
@@ -93,6 +94,7 @@ loom/
 ### Deployment workflow (immutable)
 
 Default workflow:
+
 - Short-lived branches (`feature/*`, `fix/*`, `docs/*`, `chore/*`,
   `refactor/*`) require PR into `main` before merging
 - Merge to `main` → auto-deploy to GitHub Pages via GitHub Actions
@@ -109,6 +111,7 @@ This repo uses agent-skills for workflow routing. For Git shipping, apply
 **Default collaboration model:** short-lived task branches and PRs into `main`.
 
 Use branch names aligned with agent-skills:
+
 - `feature/<short-topic>` for new user-facing features or project phases
 - `fix/<short-topic>` for bug fixes
 - `docs/<short-topic>` for documentation-only changes
@@ -118,6 +121,7 @@ Use branch names aligned with agent-skills:
 Do not commit or push directly to `main` unless the user explicitly asks.
 
 Before editing files:
+
 - if on `main`, create the appropriate short-lived branch;
 - if already on a task branch, keep using it;
 - if there are unrelated local changes, stop and ask;
@@ -125,6 +129,7 @@ Before editing files:
   inspection.
 
 When the user says `ship en PR` or `crée une PR`:
+
 1. Review `git status` and the diff.
 2. Stage only intended files.
 3. Commit with a concise message.
@@ -134,6 +139,7 @@ When the user says `ship en PR` or `crée une PR`:
 7. Do not merge.
 
 When the user says `merge la PR` or `relis et merge`:
+
 1. Review the PR diff.
 2. Check mergeability, conflicts, and GitHub checks if available.
 3. Merge only if there is no blocker.
@@ -143,12 +149,14 @@ When the user says `merge la PR` or `relis et merge`:
 After merge, return to `main` and update it before starting a new task.
 
 ### Execution engine — key constraint
+
 The engine simulates concurrency in a **deterministic, tick-based** manner.
 Do NOT use real Web Workers or async parallelism in the MVP. The simulation
 must be pausable, steppable, and observable. This is a deliberate pedagogical
 choice — see `docs/adr/` for the rationale once documented.
 
 ### STARTUP.md lifecycle (important)
+
 - STARTUP.md is **temporary** — it guides the bootstrap from Phase 0 to MVP
 - Once MVP is reached, **STARTUP.md should be deleted**
 - Do NOT extend STARTUP.md with post-MVP phases
@@ -156,6 +164,7 @@ choice — see `docs/adr/` for the rationale once documented.
 - Ideas for future work go into IDEAS.md
 
 ### Documentation conventions
+
 - **Architecture Decision Records** live in `docs/adr/` — use the
   `documentation-and-adrs` skill when making a significant technical decision
 - **Feature-level documentation** lives in `docs/features/<feature-name>/README.md`
@@ -196,24 +205,24 @@ proceed. The user overrides with one word — no blocking for confirmation.
 
 **Routing table:**
 
-| User's intent signal | Suggested entry point |
-|---|---|
-| User doesn't yet know what they want, intent unclear | `interview-me` |
-| Vague idea, needs refinement before anything | `idea-refine` |
-| Typo, single-line fix, unambiguous self-contained change | `/build` (skipping `/spec` + `/plan`) |
-| Modify existing behavior, targeted improvement, clear scope | `/build` (skipping `/spec` + `/plan`) |
-| New screen, new data model, new integration, ambiguous requirements | `/spec` (full pipeline) |
-| Structural refactor (extract module, change architecture) | `/spec` |
-| Cleanup refactor (same code, cleaner) | `/code-simplify` |
-| Bug, error, unexpected behavior | `debugging-and-error-recovery` |
-| Browser-based behavior to verify (UI flows, console, network) | `browser-testing-with-devtools` |
-| Code review, verification pass | `/review` — use `code-simplification` if unnecessary complexity is the main finding |
-| Security review (input handling, auth, data storage) | `security-and-hardening` |
-| Performance issue (latency, memory, throughput) | `performance-optimization` |
-| Document a decision, write an ADR | `documentation-and-adrs` |
-| Removing/replacing a public API, breaking change with downstream users | `deprecation-and-migration` |
-| Pre-ship web quality audit (perf, best practices) | `web-quality-audit` |
-| Deploy, ship to production | `/ship` |
+| User's intent signal                                                   | Suggested entry point                                                               |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| User doesn't yet know what they want, intent unclear                   | `interview-me`                                                                      |
+| Vague idea, needs refinement before anything                           | `idea-refine`                                                                       |
+| Typo, single-line fix, unambiguous self-contained change               | `/build` (skipping `/spec` + `/plan`)                                               |
+| Modify existing behavior, targeted improvement, clear scope            | `/build` (skipping `/spec` + `/plan`)                                               |
+| New screen, new data model, new integration, ambiguous requirements    | `/spec` (full pipeline)                                                             |
+| Structural refactor (extract module, change architecture)              | `/spec`                                                                             |
+| Cleanup refactor (same code, cleaner)                                  | `/code-simplify`                                                                    |
+| Bug, error, unexpected behavior                                        | `debugging-and-error-recovery`                                                      |
+| Browser-based behavior to verify (UI flows, console, network)          | `browser-testing-with-devtools`                                                     |
+| Code review, verification pass                                         | `/review` — use `code-simplification` if unnecessary complexity is the main finding |
+| Security review (input handling, auth, data storage)                   | `security-and-hardening`                                                            |
+| Performance issue (latency, memory, throughput)                        | `performance-optimization`                                                          |
+| Document a decision, write an ADR                                      | `documentation-and-adrs`                                                            |
+| Removing/replacing a public API, breaking change with downstream users | `deprecation-and-migration`                                                         |
+| Pre-ship web quality audit (perf, best practices)                      | `web-quality-audit`                                                                 |
+| Deploy, ship to production                                             | `/ship`                                                                             |
 
 **Context-specific skills activate automatically.** `context-engineering`
 activates when starting a session, switching tasks, or when output quality
@@ -264,6 +273,7 @@ applicable skill before starting work.
 ### When `/spec` is required (non-negotiable)
 
 Always suggest `/spec` when the request implies:
+
 - A new data model
 - A new screen or module
 - Requirements that are ambiguous or not self-contained

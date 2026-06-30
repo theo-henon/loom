@@ -10,7 +10,7 @@ concurrence pour la première fois.
 
 ## État courant
 
-**Phase actuelle :** Phase 0 terminée — prochaine étape : Phase 1.1 (Éditeur de blocs + lanes)
+**Phase actuelle :** Phase 1.1 — Éditeur de blocs + système de lanes
 **MVP visé :** fin de Phase 1.5
 
 > Plan de démarrage complet : voir [STARTUP.md](./STARTUP.md)
