@@ -6,6 +6,7 @@ import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
 import { ConditionBlock } from './ConditionBlock';
 import { LoopBlock } from './LoopBlock';
+import { MutexBlock } from './MutexBlock';
 import { OperationBlock } from './OperationBlock';
 import { VariableBlock } from './VariableBlock';
 
@@ -18,6 +19,7 @@ type BlockRendererProps = {
   threadColor?: string;
   threadStatus?: ThreadStatus;
   draggable?: boolean;
+  mutexOwnerLabel?: string | null;
 };
 
 export function BlockRenderer({
@@ -29,6 +31,7 @@ export function BlockRenderer({
   threadColor,
   threadStatus = 'idle',
   draggable = true,
+  mutexOwnerLabel = null,
 }: BlockRendererProps) {
   return (
     <div
@@ -80,6 +83,13 @@ export function BlockRenderer({
         <ConditionBlock block={block} onChange={onChange} />
       )}
       {block.type === 'loop' && <LoopBlock block={block} onChange={onChange} />}
+      {block.type === 'mutex' && (
+        <MutexBlock
+          block={block}
+          onChange={onChange}
+          ownerLabel={mutexOwnerLabel}
+        />
+      )}
     </div>
   );
 }

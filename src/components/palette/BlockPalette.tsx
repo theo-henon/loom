@@ -4,7 +4,13 @@ import { BlockTypeIcon } from '../blocks/BlockTypeIcon';
 import { Button } from '../ui/Button';
 import { setBlockTypeDragData } from './drag';
 
-const BLOCK_TYPES: BlockType[] = ['variable', 'operation', 'condition', 'loop'];
+const BLOCK_TYPES: BlockType[] = [
+  'variable',
+  'operation',
+  'condition',
+  'loop',
+  'mutex',
+];
 
 export function BlockPalette() {
   const { addBlockToSelectedLane } = useProgram();

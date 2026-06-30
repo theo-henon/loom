@@ -1,4 +1,5 @@
-export type BlockType = 'variable' | 'operation' | 'condition' | 'loop';
+export type BlockType =
+  'variable' | 'operation' | 'condition' | 'loop' | 'mutex';
 
 export type ArithmeticOperator = '+' | '-' | '*' | '/';
 export type Comparator = '==' | '!=' | '<' | '>' | '<=' | '>=';
@@ -32,14 +33,24 @@ export type LoopBlockData = BlockBase & {
   iterations: number;
 };
 
+export type MutexBlockData = BlockBase & {
+  type: 'mutex';
+  name: string;
+};
+
 export type Block =
-  VariableBlockData | OperationBlockData | ConditionBlockData | LoopBlockData;
+  | VariableBlockData
+  | OperationBlockData
+  | ConditionBlockData
+  | LoopBlockData
+  | MutexBlockData;
 
 export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   variable: 'Variable',
   operation: 'Opération',
   condition: 'Condition',
   loop: 'Boucle',
+  mutex: 'Mutex',
 };
 
 export function createBlock(type: BlockType): Block {
@@ -66,5 +77,7 @@ export function createBlock(type: BlockType): Block {
       };
     case 'loop':
       return { id, type, iterations: 3 };
+    case 'mutex':
+      return { id, type, name: 'verrou' };
   }
 }

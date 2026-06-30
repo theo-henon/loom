@@ -1,5 +1,7 @@
+import { deadlockFixedScenario } from './deadlockFixed';
 import { deadlockScenario } from './deadlock';
 import { parallelSimpleScenario } from './parallelSimple';
+import { raceConditionFixedScenario } from './raceConditionFixed';
 import { raceConditionScenario } from './raceCondition';
 import type { Scenario, ScenarioId } from './types';
 import { createLane } from '../types/lane';
@@ -7,7 +9,9 @@ import { createLane } from '../types/lane';
 export const SCENARIOS: Scenario[] = [
   parallelSimpleScenario,
   raceConditionScenario,
+  raceConditionFixedScenario,
   deadlockScenario,
+  deadlockFixedScenario,
 ];
 
 export function getScenarioById(id: ScenarioId): Scenario | undefined {

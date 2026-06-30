@@ -11,6 +11,7 @@ const ICON_STYLES: Record<BlockType, string> = {
   operation: 'bg-emerald-100 text-emerald-700',
   condition: 'bg-amber-100 text-amber-800',
   loop: 'bg-violet-100 text-violet-700',
+  mutex: 'bg-rose-100 text-rose-700',
 };
 
 function VariableIcon() {
@@ -64,11 +65,27 @@ function LoopIcon() {
   );
 }
 
+function MutexIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden>
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+        d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2M4.5 7h7v6h-7V7z"
+      />
+    </svg>
+  );
+}
+
 const ICONS: Record<BlockType, () => ReactElement> = {
   variable: VariableIcon,
   operation: OperationIcon,
   condition: ConditionIcon,
   loop: LoopIcon,
+  mutex: MutexIcon,
 };
 
 export function BlockTypeIcon({ type, className = '' }: BlockTypeIconProps) {

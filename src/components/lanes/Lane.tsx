@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { getActiveBlockId } from '../../engine/engine';
+import { getMutexOwnerLaneId } from '../../engine/mutex';
 import { useEditorLayout } from '../../hooks/editorLayoutContext';
 import { useExecution } from '../../hooks/useExecution';
 import { usePointerResize } from '../../hooks/usePointerResize';
@@ -58,6 +59,17 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
       [adjustLaneWidth, lane.id],
     ),
   });
+
+  const getMutexOwnerLabel = (mutexName: string) => {
+    const ownerLaneId = getMutexOwnerLaneId(engineState.mutexes, mutexName);
+    if (!ownerLaneId) {
+      return null;
+    }
+    return (
+      programState.lanes.find((entry) => entry.id === ownerLaneId)?.name ??
+      'Thread'
+    );
+  };
 
   const handlePaletteDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -189,6 +201,9 @@ export function Lane({ lane, laneIndex, isSelected }: LaneProps) {
                 threadColor={lane.color}
                 threadStatus={threadStatus}
                 draggable={!isRunning}
+                mutexOwnerLabel={
+                  block.type === 'mutex' ? getMutexOwnerLabel(block.name) : null
+                }
               />
             </div>
           ))
