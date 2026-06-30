@@ -1,0 +1,52 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+  initialProgramState,
+  programReducer,
+} from '../../src/hooks/programReducer';
+
+describe('programReducer', () => {
+  beforeEach(() => {
+    vi.stubGlobal('crypto', {
+      randomUUID: vi.fn(() => 'test-uuid'),
+    });
+  });
+
+  it('starts with two lanes', () => {
+    expect(initialProgramState.lanes).toHaveLength(2);
+  });
+
+  it('adds a block to a lane', () => {
+    const laneId = initialProgramState.lanes[0].id;
+    const next = programReducer(initialProgramState, {
+      type: 'ADD_BLOCK',
+      laneId,
+      blockType: 'variable',
+    });
+
+    expect(next.lanes[0].blocks).toHaveLength(1);
+    expect(next.lanes[0].blocks[0].type).toBe('variable');
+    expect(next.selectedLaneId).toBe(laneId);
+  });
+
+  it('renames a lane', () => {
+    const laneId = initialProgramState.lanes[0].id;
+    const next = programReducer(initialProgramState, {
+      type: 'RENAME_LANE',
+      laneId,
+      name: 'Worker A',
+    });
+
+    expect(next.lanes[0].name).toBe('Worker A');
+  });
+
+  it('removes a lane and reselects the first remaining lane', () => {
+    const laneId = initialProgramState.lanes[0].id;
+    const next = programReducer(
+      { ...initialProgramState, selectedLaneId: laneId },
+      { type: 'REMOVE_LANE', laneId },
+    );
+
+    expect(next.lanes).toHaveLength(1);
+    expect(next.selectedLaneId).toBe(next.lanes[0].id);
+  });
+});

@@ -17,6 +17,7 @@
 fonctionnel visible.
 
 **Contenu :**
+
 - Setup Vite + React 19 + TypeScript + Tailwind CSS 4.x
 - Structure de fichiers : `src/components/`, `src/engine/`, `src/scenarios/`, `src/hooks/`, `src/types/`
 - Layout skeleton : panneau gauche (palette de blocs) + centre (éditeur de lanes) + droite (panneau de visualisation)
@@ -38,6 +39,7 @@ ajouter des blocs depuis la palette dans chaque lane, éditer les propriétés
 de chaque bloc (nom de variable, valeur, opérateur, condition...).
 
 **Contenu technique :**
+
 - Composants de blocs : `VariableBlock`, `OperationBlock`, `ConditionBlock`, `LoopBlock`
 - Composant `Lane` : une lane = un thread futur, plusieurs lanes côte à côte
 - Composant `BlockPalette` : panneau gauche avec les types de blocs disponibles
@@ -58,6 +60,7 @@ différents, éditer leurs propriétés, et voir la structure affichée.
 à 2 threads et voir les blocs s'activer séquentiellement, avec variables partagées.
 
 **Contenu technique :**
+
 - Moteur tick-by-tick : à chaque tick, chaque thread avance d'un bloc
 - Sémantique des blocs : `set variable`, opération arithmétique, condition (if/else), boucle (loop n fois)
 - Variables partagées entre lanes (état global mutable)
@@ -78,6 +81,7 @@ sur les blocs actifs.
 thread(s) exécute(nt) quel bloc à chaque instant.
 
 **Contenu technique :**
+
 - Une couleur distincte par lane/thread (assignée à la création)
 - Rond coloré affiché sur le bloc en cours d'exécution pour chaque thread
 - Animation fluide entre les ticks
@@ -97,6 +101,7 @@ en temps réel pendant l'exécution. On voit immédiatement quel thread est
 de tous les threads sur un axe temporel.
 
 **Contenu technique :**
+
 - Panneau timeline dans la zone de visualisation droite
 - Une ligne par thread (couleur correspondante)
 - Axe X = ticks d'exécution écoulés
@@ -118,6 +123,7 @@ l'apprentissage des concepts de concurrence.
 du concept correspondant.
 
 **Contenu technique :**
+
 - 3 scénarios built-in :
   - `parallel-simple` : deux threads qui incrémentent chacun leur variable (introduction)
   - `race-condition` : deux threads qui modifient la même variable sans synchronisation
@@ -142,31 +148,37 @@ et la timeline. Des scénarios pré-construits couvrent les concepts clés
 ## Use cases par phase
 
 ### Phase 0
+
 - UC0.1 : Un développeur peut cloner le repo, installer les dépendances et
   lancer l'app en local — le layout à trois panneaux s'affiche.
 - UC0.2 : Un push sur `main` déclenche le déploiement GitHub Pages automatiquement.
 
 ### Phase 1.1
+
 - UC1.1 : L'utilisateur ajoute une lane, lui donne un nom, et y glisse des blocs
   depuis la palette.
 - UC1.2 : L'utilisateur crée un bloc Variable, édite son nom et sa valeur initiale.
 - UC1.3 : L'utilisateur supprime un bloc ou une lane.
 
 ### Phase 1.2
+
 - UC2.1 : L'utilisateur appuie sur Play et voit le programme s'exécuter
   automatiquement tick par tick.
 - UC2.2 : L'utilisateur appuie sur Step pour avancer manuellement d'un tick.
 - UC2.3 : L'utilisateur appuie sur Reset et le programme revient à l'état initial.
 
 ### Phase 1.3
+
 - UC3.1 : Pendant l'exécution, l'utilisateur voit un rond de couleur se déplacer
   sur le bloc actif de chaque thread.
 
 ### Phase 1.4
+
 - UC4.1 : Pendant l'exécution, la timeline se remplit et montre les threads
   s'exécuter en parallèle dans le temps.
 
 ### Phase 1.5
+
 - UC5.1 : L'utilisateur sélectionne "Deadlock" au démarrage, charge le scénario,
   l'exécute, et observe les threads se bloquer.
 
@@ -187,7 +199,7 @@ et la timeline. Des scénarios pré-construits couvrent les concepts clés
 Pour chaque phase, dans l'IDE avec agent-skills installé :
 
 1. `/spec [description de la phase]` — l'agent lit STARTUP.md + VISION.md
-   + docs/project.md pour se contextualiser
+   - docs/project.md pour se contextualiser
 2. `/plan` — l'agent décompose la phase en tâches vérifiables (tasks/plan.md)
 3. `/build` — implémentation incrémentale, slice par slice
 4. `/test` — vérification avec test-driven-development
