@@ -1,4 +1,4 @@
-# Spec — Contrôle de vitesse d'exécution
+# Spec — Layout éditeur (redimensionner / déplacer / sauvegarder)
 
 > **Statut :** Implémentée  
 > **Feature :** post-MVP (IDEAS.md)

@@ -7,7 +7,7 @@ export function LaneEditor() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="mb-3 flex shrink-0 items-center justify-between">
+      <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
         <p className="text-sm text-gray-500" aria-label="Nombre de lanes">
           {state.lanes.length} lane{state.lanes.length > 1 ? 's' : ''}
         </p>
@@ -24,10 +24,11 @@ export function LaneEditor() {
         </div>
       ) : (
         <div className="flex min-h-0 min-w-0 flex-1 gap-4 overflow-x-auto pb-2">
-          {state.lanes.map((lane) => (
+          {state.lanes.map((lane, index) => (
             <Lane
               key={lane.id}
               lane={lane}
+              laneIndex={index}
               isSelected={state.selectedLaneId === lane.id}
             />
           ))}

@@ -10,6 +10,7 @@ describe('BlockRenderer', () => {
     render(
       <BlockRenderer
         block={block}
+        laneId="lane-1"
         onChange={vi.fn()}
         onRemove={vi.fn()}
         isActive
@@ -27,6 +28,7 @@ describe('BlockRenderer', () => {
     render(
       <BlockRenderer
         block={block}
+        laneId="lane-1"
         onChange={vi.fn()}
         onRemove={vi.fn()}
         isActive={false}

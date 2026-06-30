@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import { ProgramProvider } from './hooks/ProgramProvider';
+import { EditorLayoutProvider } from './hooks/EditorLayoutProvider';
 import { ExecutionProvider } from './hooks/ExecutionProvider';
 import {
   getLanesSignature,
   useExecutionController,
 } from './hooks/useExecution';
 import { useProgram } from './hooks/useProgram';
-import { BlockPalettePanel } from './components/palette/BlockPalettePanel';
-import { VisualizationPanel } from './components/visualization/VisualizationPanel';
-import { LaneEditor } from './components/lanes/LaneEditor';
+import { MainWorkspaceLayout } from './components/layout/MainWorkspaceLayout';
+import { LayoutControls } from './components/layout/LayoutControls';
 import { ExecutionControls } from './components/execution/ExecutionControls';
 import { ScenarioWelcome } from './components/scenarios/ScenarioWelcome';
 import { ScenarioPickerModal } from './components/scenarios/ScenarioPickerModal';
-import { Panel } from './components/ui/Panel';
 import { Button } from './components/ui/Button';
 import { getScenarioById } from './scenarios';
 
@@ -41,19 +40,12 @@ function AppContent() {
           >
             Charger un scénario
           </Button>
+          <LayoutControls />
           <ExecutionControls />
         </div>
       </header>
-      <main className="flex flex-1 overflow-hidden">
-        <BlockPalettePanel className="w-60 shrink-0" />
-        <Panel
-          title="Éditeur de lanes"
-          className="min-w-0 flex-1"
-          contentClassName="overflow-hidden"
-        >
-          <LaneEditor />
-        </Panel>
-        <VisualizationPanel className="w-80 shrink-0" />
+      <main className="flex min-h-0 flex-1 overflow-hidden">
+        <MainWorkspaceLayout />
       </main>
 
       {showScenarioPicker ? (
@@ -93,7 +85,9 @@ function AppShell() {
 export function App() {
   return (
     <ProgramProvider>
-      <AppShell />
+      <EditorLayoutProvider>
+        <AppShell />
+      </EditorLayoutProvider>
     </ProgramProvider>
   );
 }
