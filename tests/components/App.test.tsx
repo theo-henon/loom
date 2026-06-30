@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { App } from '../../src/App';
@@ -37,11 +37,16 @@ describe('App editor', () => {
     );
 
     await user.click(
-      within(editor).getByRole('button', { name: '+ Ajouter une lane' }),
+      screen.getByRole('button', { name: '+ Ajouter une lane' }),
     );
 
-    expect(within(editor).getByLabelText('Nombre de lanes')).toHaveTextContent(
-      '3 lanes',
-    );
+    await waitFor(() => {
+      const updatedEditor = screen.getByRole('region', {
+        name: 'Éditeur de lanes',
+      });
+      expect(
+        within(updatedEditor).getByLabelText('Nombre de lanes'),
+      ).toHaveTextContent('3 lanes');
+    });
   });
 });

@@ -1,11 +1,11 @@
-# Spec : Phase 1.1 — Éditeur de blocs + système de lanes
+# Spec : Phase 1.2 — Moteur d'exécution simulé
 
 > **Statut :** Implémentée  
 > **Phase :** Bootstrap (STARTUP.md)
 
 ## Objectif
 
-Construire l'éditeur visuel — palette de blocs et lanes parallèles.
+Simuler l'exécution concurrente des lanes tick par tick, avec variables partagées et contrôles Play/Pause/Step/Reset.
 
 ## Tech Stack
 
@@ -13,12 +13,14 @@ Voir [docs/project.md](./docs/project.md#tech-stack).
 
 ## Success Criteria
 
-- [x] 2 lanes par défaut, ajout/suppression dynamique
-- [x] 4 types de blocs : Variable, Opération, Condition, Boucle
-- [x] Ajout par clic (lane sélectionnée ou première) ou drag-and-drop
-- [x] Propriétés éditables inline
-- [x] Tests reducer + interactions clés
+- [x] Moteur tick-by-tick (chaque thread avance d'un bloc par tick)
+- [x] Sémantique Variable, Opération, Condition (blocage), Boucle
+- [x] Variables partagées affichées en temps réel
+- [x] Contrôles Play / Pause / Step / Reset
+- [x] États thread : idle, running, blocked, done
+- [x] Surbrillance du bloc actif
+- [x] Tests unitaires moteur
 
 ## Références
 
-- [STARTUP.md — Phase 1.1](./STARTUP.md#phase-11--éditeur-de-blocs--système-de-lanes)
+- [STARTUP.md — Phase 1.2](./STARTUP.md#phase-12--moteur-dexécution-simulé)
