@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  createEngineState,
-  runTick,
-} from '../../src/engine/engine';
+import { createEngineState, runTick } from '../../src/engine/engine';
 import { deadlockScenario } from '../../src/scenarios/deadlock';
 import { parallelSimpleScenario } from '../../src/scenarios/parallelSimple';
 import { raceConditionScenario } from '../../src/scenarios/raceCondition';

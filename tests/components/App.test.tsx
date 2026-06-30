@@ -3,7 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { App } from '../../src/App';
 
-async function enterEditorFromWelcome(user: ReturnType<typeof userEvent.setup>) {
+async function enterEditorFromWelcome(
+  user: ReturnType<typeof userEvent.setup>,
+) {
   await user.click(
     screen.getByRole('button', { name: 'Ou commencer avec un éditeur vide' }),
   );

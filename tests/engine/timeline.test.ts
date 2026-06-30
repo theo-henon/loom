@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { createBlock, BLOCK_TYPE_LABELS } from '../../src/types/blocks';
 import { createLane } from '../../src/types/lane';
 import { appendTimelineForTick } from '../../src/engine/timeline';
-import {
-  createEngineState,
-  runTick,
-} from '../../src/engine/engine';
+import { createEngineState, runTick } from '../../src/engine/engine';
 import type { ThreadState } from '../../src/types/execution';
 
 describe('timeline', () => {
