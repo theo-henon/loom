@@ -1,10 +1,25 @@
-import { useReducer, type ReactNode } from 'react';
+import { useCallback, useReducer, type ReactNode } from 'react';
 import type { BlockType } from '../types/blocks';
 import { ProgramContext, type ProgramContextValue } from './programContext';
 import { initialProgramState, programReducer } from './programReducer';
 
 export function ProgramProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(programReducer, initialProgramState);
+
+  const loadScenario = useCallback(
+    (
+      lanes: Parameters<ProgramContextValue['loadScenario']>[0],
+      scenarioId: Parameters<ProgramContextValue['loadScenario']>[1],
+      title?: Parameters<ProgramContextValue['loadScenario']>[2],
+    ) =>
+      dispatch({
+        type: 'LOAD_SCENARIO',
+        lanes,
+        scenarioId,
+        title: title ?? null,
+      }),
+    [],
+  );
 
   const value: ProgramContextValue = {
     state,
@@ -27,8 +42,7 @@ export function ProgramProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'REMOVE_BLOCK', laneId, blockId }),
     updateBlock: (laneId, block) =>
       dispatch({ type: 'UPDATE_BLOCK', laneId, block }),
-    loadScenario: (lanes, scenarioId) =>
-      dispatch({ type: 'LOAD_SCENARIO', lanes, scenarioId }),
+    loadScenario,
     reorderLanes: (fromIndex, toIndex) =>
       dispatch({ type: 'REORDER_LANES', fromIndex, toIndex }),
     moveBlock: (

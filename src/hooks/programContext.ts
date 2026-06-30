@@ -22,7 +22,11 @@ export type ProgramContextValue = {
   removeBlock: (laneId: string, blockId: string) => void;
   updateBlock: (laneId: string, block: Block) => void;
   addBlockToSelectedLane: (blockType: BlockType) => void;
-  loadScenario: (lanes: Lane[], scenarioId: ScenarioId | null) => void;
+  loadScenario: (
+    lanes: Lane[],
+    scenarioId: ScenarioId | null,
+    title?: string | null,
+  ) => void;
   reorderLanes: (fromIndex: number, toIndex: number) => void;
   moveBlock: (
     blockId: string,
