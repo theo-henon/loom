@@ -1,4 +1,5 @@
 import type { LoopBlockData } from '../../types/blocks';
+import { BlockTypeLabel } from './BlockTypeLabel';
 
 type LoopBlockProps = {
   block: LoopBlockData;
@@ -8,7 +9,7 @@ type LoopBlockProps = {
 export function LoopBlock({ block, onChange }: LoopBlockProps) {
   return (
     <div className="space-y-2 text-sm">
-      <p className="font-medium text-gray-700">Boucle</p>
+      <BlockTypeLabel type="loop" />
       <label className="flex flex-col gap-1">
         <span className="text-xs text-gray-500">Nombre d&apos;itérations</span>
         <input
