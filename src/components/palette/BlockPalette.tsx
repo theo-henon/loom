@@ -36,7 +36,6 @@ export function BlockPalette() {
               addBlockToSelectedLane(blockType);
             }
           }}
-          disabled={blockType === 'condition'}
           title={
             blockType === 'condition'
               ? 'Glissez ce bloc dans un Si...Alors ou une Boucle'

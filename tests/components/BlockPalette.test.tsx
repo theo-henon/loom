@@ -19,7 +19,7 @@ describe('BlockPalette', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Ajouter bloc Condition' }),
-    ).toBeDisabled();
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Ajouter bloc Si...Alors' }),
     ).toBeInTheDocument();
