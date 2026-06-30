@@ -67,9 +67,7 @@ function appendSegment(
     lastForLane.endTick === segment.startTick
   ) {
     return timeline.map((entry) =>
-      entry === lastForLane
-        ? { ...entry, endTick: segment.endTick }
-        : entry,
+      entry === lastForLane ? { ...entry, endTick: segment.endTick } : entry,
     );
   }
 

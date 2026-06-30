@@ -117,7 +117,8 @@ export function TimelinePanel() {
                     style={{ width: trackWidth, height: TIMELINE_ROW_HEIGHT }}
                   >
                     {laneSegments.map((segment) => {
-                      const left = (segment.startTick - 1) * TIMELINE_TICK_WIDTH;
+                      const left =
+                        (segment.startTick - 1) * TIMELINE_TICK_WIDTH;
                       const width =
                         (segment.endTick - segment.startTick) *
                         TIMELINE_TICK_WIDTH;

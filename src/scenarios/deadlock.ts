@@ -5,7 +5,7 @@ export const deadlockScenario: Scenario = {
   id: 'deadlock',
   title: 'Deadlock',
   description:
-    'Deux threads s\'emparent chacun d\'une ressource puis attendent l\'autre — blocage mutuel permanent.',
+    "Deux threads s'emparent chacun d'une ressource puis attendent l'autre — blocage mutuel permanent.",
   concept: 'Deadlock',
   lanes: [
     scenarioLane('deadlock-lane-a', 0, 'Thread A', [
