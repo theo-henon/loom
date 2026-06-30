@@ -1,6 +1,7 @@
 import { useExecution } from '../../hooks/useExecution';
 import { useProgram } from '../../hooks/useProgram';
 import type { ThreadStatus } from '../../types/execution';
+import { ThreadDot } from './ThreadDot';
 
 const STATUS_LABELS: Record<ThreadStatus, string> = {
   idle: 'En attente',
@@ -47,8 +48,11 @@ export function SharedVariablesPanel() {
             const thread = state.threads[lane.id];
             const status = thread?.status ?? 'idle';
             return (
-              <li key={lane.id}>
-                {lane.name} — {STATUS_LABELS[status]}
+              <li key={lane.id} className="flex items-center gap-2">
+                <ThreadDot color={lane.color} status={status} size="sm" />
+                <span>
+                  {lane.name} — {STATUS_LABELS[status]}
+                </span>
               </li>
             );
           })}

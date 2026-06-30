@@ -1,5 +1,8 @@
+import type { CSSProperties } from 'react';
 import type { Block } from '../../types/blocks';
+import type { ThreadStatus } from '../../types/execution';
 import { Button } from '../ui/Button';
+import { ThreadDot } from '../visualization/ThreadDot';
 import { ConditionBlock } from './ConditionBlock';
 import { LoopBlock } from './LoopBlock';
 import { OperationBlock } from './OperationBlock';
@@ -10,7 +13,8 @@ type BlockRendererProps = {
   onChange: (block: Block) => void;
   onRemove: () => void;
   isActive?: boolean;
-  isBlocked?: boolean;
+  threadColor?: string;
+  threadStatus?: ThreadStatus;
 };
 
 export function BlockRenderer({
@@ -18,18 +22,31 @@ export function BlockRenderer({
   onChange,
   onRemove,
   isActive = false,
-  isBlocked = false,
+  threadColor,
+  threadStatus = 'idle',
 }: BlockRendererProps) {
-  const highlightClass = isBlocked
-    ? 'ring-2 ring-amber-400'
-    : isActive
-      ? 'ring-2 ring-indigo-400'
-      : '';
-
   return (
     <div
-      className={`rounded-lg border border-gray-200 bg-white p-3 shadow-sm ${highlightClass}`}
+      className={`relative rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow duration-300 ${
+        isActive && threadColor ? 'shadow-md' : ''
+      }`}
+      style={
+        isActive && threadColor
+          ? ({ boxShadow: `0 0 0 2px ${threadColor}` } as CSSProperties)
+          : undefined
+      }
     >
+      {isActive && threadColor && (
+        <div
+          className="absolute -left-1.5 -top-1.5 z-10 transition-transform duration-300 ease-in-out"
+          data-testid="thread-dot"
+        >
+          <ThreadDot
+            color={threadColor}
+            status={threadStatus === 'blocked' ? 'blocked' : 'running'}
+          />
+        </div>
+      )}
       <div className="mb-2 flex justify-end">
         <Button variant="ghost" className="text-xs" onClick={onRemove}>
           Supprimer
