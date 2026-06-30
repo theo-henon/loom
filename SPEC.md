@@ -1,20 +1,19 @@
-# Spec : Phase 1.4 — Visualisation timeline
+# Spec : Phase 1.5 — Scénarios pré-construits
 
 > **Statut :** Implémentée  
-> **Phase :** Bootstrap (STARTUP.md)
+> **Phase :** Bootstrap (STARTUP.md) — **MVP atteint**
 
 ## Objectif
 
-Visualiser l'historique d'exécution de tous les threads sur un axe temporel (ticks).
+Guider l'apprentissage via une bibliothèque de scénarios intégrés couvrant parallélisme, race condition et deadlock.
 
 ## Success Criteria
 
-- [x] Panneau timeline dans la zone de visualisation droite
-- [x] Une ligne par thread (couleur correspondante)
-- [x] Axe X = ticks d'exécution écoulés
-- [x] Segments colorés par bloc (nom visible au survol)
-- [x] Défilement automatique vers la droite pendant l'exécution
+- [x] 3 scénarios built-in : `parallel-simple`, `race-condition`, `deadlock`
+- [x] Écran d'accueil avec sélection de scénario
+- [x] Bouton « Charger un scénario » accessible depuis l'éditeur
+- [x] Deadlock observable : les deux threads se bloquent mutuellement
 
 ## Références
 
-- [STARTUP.md — Phase 1.4](./STARTUP.md#phase-14--visualisation-timeline)
+- [STARTUP.md — Phase 1.5](./STARTUP.md#phase-15--scénarios-pré-construits)

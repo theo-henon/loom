@@ -10,7 +10,7 @@ concurrence pour la première fois.
 
 ## État courant
 
-**Phase actuelle :** Phase 1.4 — Visualisation timeline
+**Phase actuelle :** Phase 1.5 — Scénarios pré-construits (**MVP atteint**)
 **MVP visé :** fin de Phase 1.5
 
 > Plan de démarrage complet : voir [STARTUP.md](./STARTUP.md)

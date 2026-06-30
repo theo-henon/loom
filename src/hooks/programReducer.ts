@@ -1,9 +1,11 @@
 import { createBlock, type Block, type BlockType } from '../types/blocks';
 import { createLane, type Lane } from '../types/lane';
+import type { ScenarioId } from '../scenarios/types';
 
 export type ProgramState = {
   lanes: Lane[];
   selectedLaneId: string | null;
+  activeScenarioId: ScenarioId | null;
 };
 
 export type ProgramAction =
@@ -13,11 +15,17 @@ export type ProgramAction =
   | { type: 'SELECT_LANE'; laneId: string | null }
   | { type: 'ADD_BLOCK'; laneId: string; blockType: BlockType }
   | { type: 'REMOVE_BLOCK'; laneId: string; blockId: string }
-  | { type: 'UPDATE_BLOCK'; laneId: string; block: Block };
+  | { type: 'UPDATE_BLOCK'; laneId: string; block: Block }
+  | {
+      type: 'LOAD_SCENARIO';
+      lanes: Lane[];
+      scenarioId: ScenarioId | null;
+    };
 
 export const initialProgramState: ProgramState = {
   lanes: [createLane(1), createLane(2)],
   selectedLaneId: null,
+  activeScenarioId: null,
 };
 
 export function programReducer(
@@ -28,6 +36,7 @@ export function programReducer(
     case 'ADD_LANE': {
       const lane = createLane(state.lanes.length + 1);
       return {
+        ...state,
         lanes: [...state.lanes, lane],
         selectedLaneId: lane.id,
       };
@@ -38,7 +47,7 @@ export function programReducer(
         state.selectedLaneId === action.laneId
           ? (lanes[0]?.id ?? null)
           : state.selectedLaneId;
-      return { lanes, selectedLaneId };
+      return { ...state, lanes, selectedLaneId };
     }
     case 'RENAME_LANE':
       return {
@@ -89,6 +98,12 @@ export function programReducer(
               }
             : lane,
         ),
+      };
+    case 'LOAD_SCENARIO':
+      return {
+        lanes: action.lanes,
+        selectedLaneId: action.lanes[0]?.id ?? null,
+        activeScenarioId: action.scenarioId,
       };
   }
 }

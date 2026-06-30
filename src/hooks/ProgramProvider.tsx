@@ -20,6 +20,8 @@ export function ProgramProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'REMOVE_BLOCK', laneId, blockId }),
     updateBlock: (laneId, block) =>
       dispatch({ type: 'UPDATE_BLOCK', laneId, block }),
+    loadScenario: (lanes, scenarioId) =>
+      dispatch({ type: 'LOAD_SCENARIO', lanes, scenarioId }),
     addBlockToSelectedLane: (blockType: BlockType) => {
       const laneId = state.selectedLaneId ?? state.lanes[0]?.id ?? null;
       if (laneId) {
