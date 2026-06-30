@@ -2,6 +2,7 @@ import type {
   ArithmeticOperator,
   OperationBlockData,
 } from '../../types/blocks';
+import { BlockTypeLabel } from './BlockTypeLabel';
 
 type OperationBlockProps = {
   block: OperationBlockData;
@@ -13,7 +14,7 @@ const OPERATORS: ArithmeticOperator[] = ['+', '-', '*', '/'];
 export function OperationBlock({ block, onChange }: OperationBlockProps) {
   return (
     <div className="space-y-2 text-sm">
-      <p className="font-medium text-gray-700">Opération</p>
+      <BlockTypeLabel type="operation" />
       <label className="flex flex-col gap-1">
         <span className="text-xs text-gray-500">Variable cible</span>
         <input

@@ -1,4 +1,5 @@
 import type { Comparator, ConditionBlockData } from '../../types/blocks';
+import { BlockTypeLabel } from './BlockTypeLabel';
 
 type ConditionBlockProps = {
   block: ConditionBlockData;
@@ -10,7 +11,7 @@ const COMPARATORS: Comparator[] = ['==', '!=', '<', '>', '<=', '>='];
 export function ConditionBlock({ block, onChange }: ConditionBlockProps) {
   return (
     <div className="space-y-2 text-sm">
-      <p className="font-medium text-gray-700">Condition</p>
+      <BlockTypeLabel type="condition" />
       <label className="flex flex-col gap-1">
         <span className="text-xs text-gray-500">Variable</span>
         <input

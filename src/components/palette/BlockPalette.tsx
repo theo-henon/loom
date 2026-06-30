@@ -1,5 +1,6 @@
 import { useProgram } from '../../hooks/useProgram';
 import { BLOCK_TYPE_LABELS, type BlockType } from '../../types/blocks';
+import { BlockTypeIcon } from '../blocks/BlockTypeIcon';
 import { Button } from '../ui/Button';
 import { setBlockTypeDragData } from './drag';
 
@@ -17,7 +18,7 @@ export function BlockPalette() {
         <Button
           key={blockType}
           variant="secondary"
-          className="w-full cursor-grab text-left active:cursor-grabbing"
+          className="flex w-full cursor-grab items-center gap-2 text-left active:cursor-grabbing"
           draggable
           aria-label={`Ajouter bloc ${BLOCK_TYPE_LABELS[blockType]}`}
           onDragStart={(event) =>
@@ -25,6 +26,7 @@ export function BlockPalette() {
           }
           onClick={() => addBlockToSelectedLane(blockType)}
         >
+          <BlockTypeIcon type={blockType} />
           {BLOCK_TYPE_LABELS[blockType]}
         </Button>
       ))}

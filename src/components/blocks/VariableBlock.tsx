@@ -1,4 +1,5 @@
 import type { VariableBlockData } from '../../types/blocks';
+import { BlockTypeLabel } from './BlockTypeLabel';
 
 type VariableBlockProps = {
   block: VariableBlockData;
@@ -8,7 +9,7 @@ type VariableBlockProps = {
 export function VariableBlock({ block, onChange }: VariableBlockProps) {
   return (
     <div className="space-y-2 text-sm">
-      <p className="font-medium text-gray-700">Variable</p>
+      <BlockTypeLabel type="variable" />
       <label className="flex flex-col gap-1">
         <span className="text-xs text-gray-500">Nom</span>
         <input
