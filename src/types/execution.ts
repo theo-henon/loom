@@ -1,15 +1,20 @@
+import type { Block } from './blocks';
 import type { TimelineSegment } from './timeline';
 
 export type ThreadStatus = 'idle' | 'running' | 'blocked' | 'done';
 
 export type EnginePhase = 'idle' | 'running' | 'paused' | 'finished';
 
-export type LoopFrame = {
-  loopBlockIndex: number;
-  bodyStart: number;
-  bodyEnd: number;
-  remaining: number;
+export type FrameKind =
+  'root' | 'loop-body' | 'condition-body' | 'condition-else-body';
+
+export type ExecutionFrame = {
+  blocks: Block[];
+  pc: number;
+  kind: FrameKind;
 };
+
+export type LoopFrame = Record<string, never>;
 
 export type MutexFrame = {
   mutexBlockIndex: number;
@@ -27,8 +32,8 @@ export type MutexRegistry = Record<string, MutexEntry>;
 
 export type ThreadState = {
   laneId: string;
-  pc: number;
   status: ThreadStatus;
+  frames: ExecutionFrame[];
   loopStack: LoopFrame[];
   mutexStack: MutexFrame[];
 };

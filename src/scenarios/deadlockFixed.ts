@@ -1,4 +1,5 @@
 import type { Scenario } from './types';
+import { scenarioCondition } from './blockHelpers';
 import { scenarioLane } from './buildScenario';
 
 export const deadlockFixedScenario: Scenario = {
@@ -17,29 +18,37 @@ export const deadlockFixedScenario: Scenario = {
       },
       {
         id: 'fixed-deadlock-a-check-a',
-        type: 'condition',
-        variable: 'lockA',
-        comparator: '==',
-        value: 0,
-      },
-      {
-        id: 'fixed-deadlock-a-acquire-a',
-        type: 'variable',
-        name: 'lockA',
-        value: 1,
+        type: 'if',
+        condition: [
+          scenarioCondition('fixed-deadlock-a-cond-a', 'lockA', '==', 0),
+        ],
+        children: [
+          {
+            id: 'fixed-deadlock-a-acquire-a',
+            type: 'variable',
+            name: 'lockA',
+            value: 1,
+          },
+        ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'fixed-deadlock-a-check-b',
-        type: 'condition',
-        variable: 'lockB',
-        comparator: '==',
-        value: 0,
-      },
-      {
-        id: 'fixed-deadlock-a-acquire-b',
-        type: 'variable',
-        name: 'lockB',
-        value: 1,
+        type: 'if',
+        condition: [
+          scenarioCondition('fixed-deadlock-a-cond-b', 'lockB', '==', 0),
+        ],
+        children: [
+          {
+            id: 'fixed-deadlock-a-acquire-b',
+            type: 'variable',
+            name: 'lockB',
+            value: 1,
+          },
+        ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'fixed-deadlock-a-step',
@@ -52,29 +61,37 @@ export const deadlockFixedScenario: Scenario = {
     scenarioLane('fixed-deadlock-b', 1, 'Thread B', [
       {
         id: 'fixed-deadlock-b-check-a',
-        type: 'condition',
-        variable: 'lockA',
-        comparator: '==',
-        value: 0,
-      },
-      {
-        id: 'fixed-deadlock-b-acquire-a',
-        type: 'variable',
-        name: 'lockA',
-        value: 1,
+        type: 'if',
+        condition: [
+          scenarioCondition('fixed-deadlock-b-cond-a', 'lockA', '==', 0),
+        ],
+        children: [
+          {
+            id: 'fixed-deadlock-b-acquire-a',
+            type: 'variable',
+            name: 'lockA',
+            value: 1,
+          },
+        ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'fixed-deadlock-b-check-b',
-        type: 'condition',
-        variable: 'lockB',
-        comparator: '==',
-        value: 0,
-      },
-      {
-        id: 'fixed-deadlock-b-acquire-b',
-        type: 'variable',
-        name: 'lockB',
-        value: 1,
+        type: 'if',
+        condition: [
+          scenarioCondition('fixed-deadlock-b-cond-b', 'lockB', '==', 0),
+        ],
+        children: [
+          {
+            id: 'fixed-deadlock-b-acquire-b',
+            type: 'variable',
+            name: 'lockB',
+            value: 1,
+          },
+        ],
+        hasElse: false,
+        elseChildren: [],
       },
       {
         id: 'fixed-deadlock-b-step',

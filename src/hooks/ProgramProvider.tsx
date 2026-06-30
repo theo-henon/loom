@@ -14,8 +14,15 @@ export function ProgramProvider({ children }: { children: ReactNode }) {
     renameLane: (laneId, name) =>
       dispatch({ type: 'RENAME_LANE', laneId, name }),
     selectLane: (laneId) => dispatch({ type: 'SELECT_LANE', laneId }),
-    addBlock: (laneId, blockType) =>
-      dispatch({ type: 'ADD_BLOCK', laneId, blockType }),
+    addBlock: (laneId, blockType, parentBlockId = null, index, parentBranch) =>
+      dispatch({
+        type: 'ADD_BLOCK',
+        laneId,
+        blockType,
+        parentBlockId,
+        parentBranch,
+        index,
+      }),
     removeBlock: (laneId, blockId) =>
       dispatch({ type: 'REMOVE_BLOCK', laneId, blockId }),
     updateBlock: (laneId, block) =>
@@ -24,18 +31,27 @@ export function ProgramProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'LOAD_SCENARIO', lanes, scenarioId }),
     reorderLanes: (fromIndex, toIndex) =>
       dispatch({ type: 'REORDER_LANES', fromIndex, toIndex }),
-    moveBlock: (blockId, fromLaneId, toLaneId, toIndex) =>
+    moveBlock: (
+      blockId,
+      fromLaneId,
+      toLaneId,
+      toParentBlockId,
+      toIndex,
+      toParentBranch,
+    ) =>
       dispatch({
         type: 'MOVE_BLOCK',
         blockId,
         fromLaneId,
         toLaneId,
+        toParentBlockId,
+        toParentBranch,
         toIndex,
       }),
     addBlockToSelectedLane: (blockType: BlockType) => {
       const laneId = state.selectedLaneId ?? state.lanes[0]?.id ?? null;
       if (laneId) {
-        dispatch({ type: 'ADD_BLOCK', laneId, blockType });
+        dispatch({ type: 'ADD_BLOCK', laneId, blockType, parentBlockId: null });
       }
     },
   };

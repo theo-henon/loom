@@ -1,5 +1,5 @@
 export type BlockType =
-  'variable' | 'operation' | 'condition' | 'loop' | 'mutex';
+  'variable' | 'operation' | 'condition' | 'if' | 'loop' | 'mutex';
 
 export type ArithmeticOperator = '+' | '-' | '*' | '/';
 export type Comparator = '==' | '!=' | '<' | '>' | '<=' | '>=';
@@ -21,16 +21,25 @@ export type OperationBlockData = BlockBase & {
   operand: number;
 };
 
-export type ConditionBlockData = BlockBase & {
+export type ConditionPredicateBlockData = BlockBase & {
   type: 'condition';
   variable: string;
   comparator: Comparator;
   value: number;
 };
 
+export type IfBlockData = BlockBase & {
+  type: 'if';
+  condition: Block[];
+  children: Block[];
+  hasElse: boolean;
+  elseChildren: Block[];
+};
+
 export type LoopBlockData = BlockBase & {
   type: 'loop';
-  iterations: number;
+  condition: Block[];
+  children: Block[];
 };
 
 export type MutexBlockData = BlockBase & {
@@ -41,17 +50,44 @@ export type MutexBlockData = BlockBase & {
 export type Block =
   | VariableBlockData
   | OperationBlockData
-  | ConditionBlockData
+  | ConditionPredicateBlockData
+  | IfBlockData
   | LoopBlockData
   | MutexBlockData;
+
+export type BlockContainer = IfBlockData | LoopBlockData;
 
 export const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   variable: 'Variable',
   operation: 'Opération',
   condition: 'Condition',
+  if: 'Si...Alors',
   loop: 'Boucle',
   mutex: 'Mutex',
 };
+
+export const BLOCK_HELP_TEXT: Record<BlockType, string> = {
+  variable:
+    'Déclare une variable numérique, partagée entre tous les threads de la lane.',
+  operation:
+    'Modifie une variable existante : addition, soustraction, multiplication ou division.',
+  condition:
+    'Teste une variable (ex. x == 0). Glissez ce bloc dans un Si...Alors ou une Boucle.',
+  if: 'Insérez un bloc Condition, puis les blocs à exécuter dans « Alors ».',
+  loop: 'Tant que la condition est vraie, les blocs du corps sont répétés.',
+  mutex:
+    'Verrouille une section : un seul thread à la fois peut la traverser.',
+};
+
+export const IF_ELSE_BRANCH_HELP =
+  'Exécuté quand la condition est fausse.';
+
+export function getContainerPredicate(
+  block: BlockContainer,
+): ConditionPredicateBlockData | null {
+  const predicate = block.condition[0];
+  return predicate?.type === 'condition' ? predicate : null;
+}
 
 export function createBlock(type: BlockType): Block {
   const id = crypto.randomUUID();
@@ -75,8 +111,17 @@ export function createBlock(type: BlockType): Block {
         comparator: '==',
         value: 0,
       };
+    case 'if':
+      return {
+        id,
+        type,
+        condition: [],
+        children: [],
+        hasElse: false,
+        elseChildren: [],
+      };
     case 'loop':
-      return { id, type, iterations: 3 };
+      return { id, type, condition: [], children: [] };
     case 'mutex':
       return { id, type, name: 'verrou' };
   }

@@ -7,6 +7,44 @@ import {
   runTick,
 } from '../../src/engine/engine';
 
+function createIfBlock(
+  overrides: Partial<
+    Extract<ReturnType<typeof createBlock>, { type: 'if' }>
+  > & {
+    predicate?: ReturnType<typeof createBlock>;
+  } = {},
+) {
+  const base = createBlock('if') as Extract<
+    ReturnType<typeof createBlock>,
+    { type: 'if' }
+  >;
+  const { predicate, ...rest } = overrides;
+  return {
+    ...base,
+    ...rest,
+    condition: predicate ? [predicate] : (rest.condition ?? base.condition),
+  };
+}
+
+function createWhileLoop(
+  overrides: Partial<
+    Extract<ReturnType<typeof createBlock>, { type: 'loop' }>
+  > & {
+    predicate?: ReturnType<typeof createBlock>;
+  } = {},
+) {
+  const base = createBlock('loop') as Extract<
+    ReturnType<typeof createBlock>,
+    { type: 'loop' }
+  >;
+  const { predicate, ...rest } = overrides;
+  return {
+    ...base,
+    ...rest,
+    condition: predicate ? [predicate] : (rest.condition ?? base.condition),
+  };
+}
+
 describe('engine', () => {
   it('executes variable and operation blocks across two lanes in one tick', () => {
     const lane1 = {
@@ -35,17 +73,19 @@ describe('engine', () => {
     expect(state.tick).toBe(1);
   });
 
-  it('blocks a thread when a condition is false', () => {
+  it('blocks a thread when an if condition is false', () => {
     const lane = {
       ...createLane(1),
       blocks: [
         { ...createBlock('variable'), name: 'x', value: 1 },
-        {
-          ...createBlock('condition'),
-          variable: 'x',
-          comparator: '==',
-          value: 0,
-        },
+        createIfBlock({
+          predicate: {
+            ...createBlock('condition'),
+            variable: 'x',
+            comparator: '==',
+            value: 0,
+          },
+        }),
         {
           ...createBlock('operation'),
           targetVariable: 'x',
@@ -61,35 +101,95 @@ describe('engine', () => {
 
     state = runTick(state, [lane]);
     expect(state.threads[lane.id].status).toBe('blocked');
-    expect(state.threads[lane.id].pc).toBe(1);
+    expect(state.threads[lane.id].frames[0].pc).toBe(1);
   });
 
-  it('repeats loop body the requested number of times', () => {
+  it('repeats a while loop while the condition stays true', () => {
     const lane = {
       ...createLane(1),
       blocks: [
         { ...createBlock('variable'), name: 'x', value: 0 },
-        { ...createBlock('loop'), iterations: 2 },
-        {
-          ...createBlock('operation'),
-          targetVariable: 'x',
-          operator: '+',
-          operand: 1,
-        },
+        { ...createBlock('variable'), name: 'i', value: 0 },
+        createWhileLoop({
+          predicate: {
+            ...createBlock('condition'),
+            variable: 'i',
+            comparator: '<',
+            value: 2,
+          },
+          children: [
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 1,
+            },
+            {
+              ...createBlock('operation'),
+              targetVariable: 'i',
+              operator: '+',
+              operand: 1,
+            },
+          ],
+        }),
       ],
     };
 
     let state = createEngineState([lane]);
 
+    for (let tick = 0; tick < 20; tick += 1) {
+      state = runTick(state, [lane]);
+      if (state.phase === 'finished') {
+        break;
+      }
+    }
+
+    expect(state.variables.x).toBe(2);
+    expect(state.threads[lane.id].status).toBe('done');
+  });
+
+  it('executes else branch when if condition is false and hasElse is enabled', () => {
+    const lane = {
+      ...createLane(1),
+      blocks: [
+        { ...createBlock('variable'), name: 'x', value: 0 },
+        createIfBlock({
+          hasElse: true,
+          predicate: {
+            ...createBlock('condition'),
+            variable: 'x',
+            comparator: '==',
+            value: 1,
+          },
+          children: [
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 10,
+            },
+          ],
+          elseChildren: [
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 1,
+            },
+          ],
+        }),
+      ],
+    };
+
+    let state = createEngineState([lane]);
     state = runTick(state, [lane]);
     expect(state.variables.x).toBe(0);
 
     state = runTick(state, [lane]);
-    state = runTick(state, [lane]);
-    expect(state.variables.x).toBe(1);
+    expect(state.variables.x).toBe(0);
 
     state = runTick(state, [lane]);
-    expect(state.variables.x).toBe(2);
+    expect(state.variables.x).toBe(1);
     expect(state.threads[lane.id].status).toBe('done');
   });
 
@@ -133,28 +233,60 @@ describe('engine', () => {
       ...createLane(1),
       blocks: [
         { ...createBlock('variable'), name: 'x', value: 0 },
-        { ...createBlock('loop'), iterations: 2 },
-        { ...createBlock('mutex'), name: 'm' },
-        {
-          ...createBlock('operation'),
-          targetVariable: 'x',
-          operator: '+',
-          operand: 1,
-        },
+        { ...createBlock('variable'), name: 'i1', value: 0 },
+        createWhileLoop({
+          predicate: {
+            ...createBlock('condition'),
+            variable: 'i1',
+            comparator: '<',
+            value: 2,
+          },
+          children: [
+            { ...createBlock('mutex'), name: 'm' },
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 1,
+            },
+            {
+              ...createBlock('operation'),
+              targetVariable: 'i1',
+              operator: '+',
+              operand: 1,
+            },
+          ],
+        }),
       ],
     };
 
     const lane2 = {
       ...createLane(2),
       blocks: [
-        { ...createBlock('loop'), iterations: 2 },
-        { ...createBlock('mutex'), name: 'm' },
-        {
-          ...createBlock('operation'),
-          targetVariable: 'x',
-          operator: '+',
-          operand: 1,
-        },
+        { ...createBlock('variable'), name: 'i2', value: 0 },
+        createWhileLoop({
+          predicate: {
+            ...createBlock('condition'),
+            variable: 'i2',
+            comparator: '<',
+            value: 2,
+          },
+          children: [
+            { ...createBlock('mutex'), name: 'm' },
+            {
+              ...createBlock('operation'),
+              targetVariable: 'x',
+              operator: '+',
+              operand: 1,
+            },
+            {
+              ...createBlock('operation'),
+              targetVariable: 'i2',
+              operator: '+',
+              operand: 1,
+            },
+          ],
+        }),
       ],
     };
 

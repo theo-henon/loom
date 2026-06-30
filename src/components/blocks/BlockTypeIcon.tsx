@@ -4,12 +4,14 @@ import type { BlockType } from '../../types/blocks';
 type BlockTypeIconProps = {
   type: BlockType;
   className?: string;
+  compact?: boolean;
 };
 
 const ICON_STYLES: Record<BlockType, string> = {
   variable: 'bg-indigo-100 text-indigo-700',
   operation: 'bg-emerald-100 text-emerald-700',
-  condition: 'bg-amber-100 text-amber-800',
+  condition: 'bg-sky-100 text-sky-800',
+  if: 'bg-amber-100 text-amber-800',
   loop: 'bg-violet-100 text-violet-700',
   mutex: 'bg-rose-100 text-rose-700',
 };
@@ -84,16 +86,22 @@ const ICONS: Record<BlockType, () => ReactElement> = {
   variable: VariableIcon,
   operation: OperationIcon,
   condition: ConditionIcon,
+  if: ConditionIcon,
   loop: LoopIcon,
   mutex: MutexIcon,
 };
 
-export function BlockTypeIcon({ type, className = '' }: BlockTypeIconProps) {
+export function BlockTypeIcon({
+  type,
+  className = '',
+  compact = false,
+}: BlockTypeIconProps) {
   const Icon = ICONS[type];
+  const sizeClass = compact ? 'h-5 w-5' : 'h-6 w-6';
 
   return (
     <span
-      className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded ${ICON_STYLES[type]} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded ${sizeClass} ${ICON_STYLES[type]} ${className}`}
       aria-hidden
     >
       <Icon />

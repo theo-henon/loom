@@ -1,26 +1,27 @@
-# Spec — Mutex
+# Spec — Blocs Condition et Boucle imbriqués
 
 > **Statut :** En cours  
-> **Feature :** post-MVP ([IDEAS.md](./IDEAS.md))
+> **Feature :** post-MVP
 
 ## Objective
 
-Un bloc composite **Mutex** : un seul thread à la fois exécute les blocs placés en dessous dans la lane. Verrouillage et déverrouillage automatiques — pas de bloc « unlock » séparé.
+Condition et Boucle acceptent des blocs **enfants** (`children[]`), visuellement indentés — structure proche du code réel.
 
 ## Success Criteria
 
-- [x] Bloc « Mutex » dans la palette (nom de verrou éditable)
-- [x] Moteur : acquire au début, release à la fin, état `blocked` si occupé
-- [x] Visualisation : statut Bloqué sur la lane ; pastille propriétaire sur le bloc
-- [x] Scénario « Race condition corrigée » (résultat stable x = 6)
-- [x] Tests moteur + scénario
+- [ ] `condition` et `loop` ont `children: Block[]`
+- [ ] Moteur : exécution des enfants, condition fausse → bloqué
+- [ ] UI : zone imbriquée + drag-and-drop dans Condition/Boucle
+- [ ] Scénarios migrés
+- [ ] Tests passent
+
+## Boundaries
+
+- Mutex inchangé (corps = blocs suivants dans le même conteneur)
+- Pas de `else` sur Condition en v1
+
+* Branche `sinon` optionnelle sur Si...Alors (`hasElse` + `elseChildren`)
 
 ## Tech Stack
 
 Voir [docs/project.md](./docs/project.md).
-
-## Boundaries
-
-- Pas de sémaphore en v1
-- Pas de panneau mutex séparé
-- Corps = blocs sous le mutex jusqu'à la fin de la lane (même modèle que la boucle)

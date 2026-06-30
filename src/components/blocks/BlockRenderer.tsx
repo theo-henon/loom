@@ -4,10 +4,13 @@ import type { ThreadStatus } from '../../types/execution';
 import { setBlockDragData } from '../palette/drag';
 import { RemoveButton } from '../ui/RemoveButton';
 import { ThreadDot } from '../visualization/ThreadDot';
-import { ConditionBlock } from './ConditionBlock';
+import { type NestedBlockListProps } from './BlockList';
+import { BlockTypeLabel } from './BlockTypeLabel';
+import { IfBlock } from './IfBlock';
 import { LoopBlock } from './LoopBlock';
 import { MutexBlock } from './MutexBlock';
 import { OperationBlock } from './OperationBlock';
+import { PredicateBlock } from './PredicateBlock';
 import { VariableBlock } from './VariableBlock';
 
 type BlockRendererProps = {
@@ -20,6 +23,7 @@ type BlockRendererProps = {
   threadStatus?: ThreadStatus;
   draggable?: boolean;
   mutexOwnerLabel?: string | null;
+  nestedListProps?: NestedBlockListProps;
 };
 
 export function BlockRenderer({
@@ -32,12 +36,22 @@ export function BlockRenderer({
   threadStatus = 'idle',
   draggable = true,
   mutexOwnerLabel = null,
+  nestedListProps,
 }: BlockRendererProps) {
+  const borderAccent =
+    block.type === 'if'
+      ? 'border-l-4 border-l-amber-200'
+      : block.type === 'loop'
+        ? 'border-l-4 border-l-violet-200'
+        : block.type === 'condition'
+          ? 'border-l-4 border-l-sky-200'
+          : '';
+
   return (
     <div
-      className={`relative rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-shadow duration-300 ${
+      className={`relative rounded-lg border border-gray-200 bg-white p-2 shadow-sm transition-shadow duration-300 ${
         isActive && threadColor ? 'shadow-md' : ''
-      }`}
+      } ${borderAccent}`}
       style={
         isActive && threadColor
           ? ({ boxShadow: `0 0 0 2px ${threadColor}` } as CSSProperties)
@@ -55,10 +69,10 @@ export function BlockRenderer({
           />
         </div>
       )}
-      <div className="mb-2 flex items-center justify-between gap-2">
+      <div className="mb-1 flex items-center gap-1">
         <button
           type="button"
-          className="cursor-grab touch-none rounded px-1 text-xs text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-50"
+          className="cursor-grab touch-none rounded px-0.5 text-xs leading-none text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-50"
           draggable={draggable}
           disabled={!draggable}
           aria-label="Déplacer le bloc"
@@ -71,6 +85,15 @@ export function BlockRenderer({
         >
           ⠿
         </button>
+        <BlockTypeLabel type={block.type} compact className="min-w-0 flex-1" />
+        {block.type === 'mutex' &&
+          (mutexOwnerLabel ? (
+            <span className="shrink-0 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-medium text-rose-800">
+              {mutexOwnerLabel}
+            </span>
+          ) : (
+            <span className="shrink-0 text-[10px] text-gray-400">Libre</span>
+          ))}
         <RemoveButton label="Supprimer le bloc" onClick={onRemove} />
       </div>
       {block.type === 'variable' && (
@@ -80,15 +103,25 @@ export function BlockRenderer({
         <OperationBlock block={block} onChange={onChange} />
       )}
       {block.type === 'condition' && (
-        <ConditionBlock block={block} onChange={onChange} />
+        <PredicateBlock block={block} onChange={onChange} />
       )}
-      {block.type === 'loop' && <LoopBlock block={block} onChange={onChange} />}
-      {block.type === 'mutex' && (
-        <MutexBlock
+      {block.type === 'if' && nestedListProps ? (
+        <IfBlock
           block={block}
           onChange={onChange}
-          ownerLabel={mutexOwnerLabel}
+          laneId={laneId}
+          nestedListProps={nestedListProps}
         />
+      ) : null}
+      {block.type === 'loop' && nestedListProps ? (
+        <LoopBlock
+          block={block}
+          laneId={laneId}
+          nestedListProps={nestedListProps}
+        />
+      ) : null}
+      {block.type === 'mutex' && (
+        <MutexBlock block={block} onChange={onChange} />
       )}
     </div>
   );

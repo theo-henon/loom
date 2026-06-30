@@ -69,7 +69,7 @@ describe('App editor', () => {
       within(palette).getByRole('button', { name: 'Ajouter bloc Variable' }),
     );
 
-    expect(screen.getByText('Valeur initiale')).toBeInTheDocument();
+    expect(screen.getByText('Valeur')).toBeInTheDocument();
   });
 
   it('adds a lane when clicking the add button', async () => {

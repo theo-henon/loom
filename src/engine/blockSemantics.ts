@@ -1,11 +1,11 @@
 import type {
   ArithmeticOperator,
   Block,
-  ConditionBlockData,
+  ConditionPredicateBlockData,
 } from '../types/blocks';
 
 export function evaluateCondition(
-  block: ConditionBlockData,
+  block: ConditionPredicateBlockData,
   variables: Record<string, number>,
 ): boolean {
   const left = variables[block.variable] ?? 0;
@@ -69,6 +69,7 @@ export function executeBlock(
       );
       break;
     case 'condition':
+    case 'if':
     case 'loop':
     case 'mutex':
       break;

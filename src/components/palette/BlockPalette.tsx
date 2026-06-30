@@ -1,13 +1,15 @@
 import { useProgram } from '../../hooks/useProgram';
-import { BLOCK_TYPE_LABELS, type BlockType } from '../../types/blocks';
-import { BlockTypeIcon } from '../blocks/BlockTypeIcon';
+import { BLOCK_HELP_TEXT, BLOCK_TYPE_LABELS, type BlockType } from '../../types/blocks';
+import { BlockTypeLabel } from '../blocks/BlockTypeLabel';
 import { Button } from '../ui/Button';
+import { Tooltip } from '../ui/Tooltip';
 import { setBlockTypeDragData } from './drag';
 
 const BLOCK_TYPES: BlockType[] = [
   'variable',
   'operation',
   'condition',
+  'if',
   'loop',
   'mutex',
 ];
@@ -21,20 +23,28 @@ export function BlockPalette() {
         Cliquez ou glissez un bloc vers une lane.
       </p>
       {BLOCK_TYPES.map((blockType) => (
-        <Button
+        <Tooltip
           key={blockType}
-          variant="secondary"
-          className="flex w-full cursor-grab items-center gap-2 text-left active:cursor-grabbing"
-          draggable
-          aria-label={`Ajouter bloc ${BLOCK_TYPE_LABELS[blockType]}`}
-          onDragStart={(event) =>
-            setBlockTypeDragData(event.dataTransfer, blockType)
-          }
-          onClick={() => addBlockToSelectedLane(blockType)}
+          content={BLOCK_HELP_TEXT[blockType]}
+          className="w-full"
         >
-          <BlockTypeIcon type={blockType} />
-          {BLOCK_TYPE_LABELS[blockType]}
-        </Button>
+          <Button
+            variant="secondary"
+            className="flex w-full cursor-grab items-center gap-2 text-left active:cursor-grabbing"
+            draggable
+            aria-label={`Ajouter bloc ${BLOCK_TYPE_LABELS[blockType]}`}
+            onDragStart={(event) =>
+              setBlockTypeDragData(event.dataTransfer, blockType)
+            }
+            onClick={() => {
+              if (blockType !== 'condition') {
+                addBlockToSelectedLane(blockType);
+              }
+            }}
+          >
+            <BlockTypeLabel type={blockType} showTooltip={false} />
+          </Button>
+        </Tooltip>
       ))}
     </div>
   );

@@ -21,6 +21,9 @@ describe('BlockPalette', () => {
       screen.getByRole('button', { name: 'Ajouter bloc Condition' }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole('button', { name: 'Ajouter bloc Si...Alors' }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole('button', { name: 'Ajouter bloc Boucle' }),
     ).toBeInTheDocument();
     expect(
@@ -28,6 +31,6 @@ describe('BlockPalette', () => {
     ).toBeInTheDocument();
 
     const icons = document.querySelectorAll('[aria-hidden="true"] svg');
-    expect(icons.length).toBeGreaterThanOrEqual(5);
+    expect(icons.length).toBeGreaterThanOrEqual(6);
   });
 });
